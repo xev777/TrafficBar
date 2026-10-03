@@ -110,7 +110,7 @@ useful, but **without any warranty**.
 
 ## Credits
 
-Design and development: Fernando Erazo ([@xev777](https://github.com/xev777)). Programming assistance: Claude (Anthropic).
+Design and direction: Fernando Erazo ([@xev777](https://github.com/xev777)). Development with assistance from Claude (Anthropic).
 Third-party components: Npcap (user-installed), psutil, Python/Tkinter. See [LICENCIAS-TERCEROS.md](LICENCIAS-TERCEROS.md).
 
 ## Support the project

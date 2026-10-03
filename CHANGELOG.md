@@ -1,5 +1,11 @@
 # Changelog / Registro de cambios
 
+## Unreleased / Sin publicar
+
+- Credits reworded to say who did what: "Design and direction: Fernando Erazo. Development with assistance from Claude
+  (Anthropic)" (README and About window). / Créditos reformulados para reflejar quién hizo qué: «Diseño y dirección:
+  Fernando Erazo. Desarrollo con asistencia de Claude (Anthropic)» (README y ventana «Acerca de»).
+
 ## 1.0.1 — 2026-10-02
 
 **Fixes / Correcciones**

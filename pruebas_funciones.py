@@ -191,7 +191,7 @@ def about_text(dons=None, repo=""):
     ayuda.CREDITOS["donaciones"] = dons or []; ayuda.CREDITOS["repo"] = repo
     hw = ayuda.HelpWindow(app, "Acerca de", n.CFG, n.save_cfg, n.DATA_DIR); t = hw.txt.get("1.0", "end"); hw.destroy(); return t
 t0_ = about_text()
-check("Acerca de muestra los créditos", "Diseño y desarrollo: Fernando" in t0_ and "Claude" in t0_)
+check("Acerca de muestra los créditos", "Diseño y dirección: Fernando" in t0_ and "Claude" in t0_)
 check("Sin donaciones configuradas no aparece nada de donar", "Apoyar el proyecto" not in t0_ and "Código fuente" not in t0_)
 t1_ = about_text([{"nombre": "PayPal", "url": "https://paypal.me/x"}, {"nombre": "Malo", "url": "javascript:alert(1)"}, {"nombre": "Cartera", "texto": "abc123"}], "https://github.com/x/TrafficBar")
 btns = []

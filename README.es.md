@@ -96,7 +96,7 @@ términos de la **Licencia Pública General de GNU versión 3** (ver [LICENSE](L
 
 ## Créditos
 
-Diseño y desarrollo: Fernando Erazo ([@xev777](https://github.com/xev777)). Asistencia de programación: Claude (Anthropic).
+Diseño y dirección: Fernando Erazo ([@xev777](https://github.com/xev777)). Desarrollo con asistencia de Claude (Anthropic).
 Componentes de terceros: Npcap (lo instala el usuario), psutil, Python/Tkinter. Ver [LICENCIAS-TERCEROS.md](LICENCIAS-TERCEROS.md).
 
 ## Apoyar el proyecto

@@ -305,8 +305,8 @@ class HelpWindow(tk.Toplevel):
                         "con todos los navegadores, muestra la carga de las páginas, bloquea publicidad y "
                         "rastreadores y explica el tráfico de tu equipo.\n\n")
         t.insert("end", "Créditos\n", "h")
-        t.insert("end", f"•  Diseño y desarrollo: {CREDITOS['autor']}\n", "b")
-        t.insert("end", "•  Asistencia de programación: Claude (Anthropic)\n", "b")
+        t.insert("end", f"•  Diseño y dirección: {CREDITOS['autor']}\n", "b")
+        t.insert("end", "•  Desarrollo con asistencia de Claude (Anthropic)\n", "b")
         if CREDITOS["licencia"]:
             t.insert("end", f"•  Licencia: {CREDITOS['licencia']}\n", "b")
         self._enlaces(t)
