@@ -6,7 +6,7 @@
 ; {app}\idioma.txt y es el idioma inicial de la aplicación (luego se cambia desde la propia barra).
 
 #define AppName "TrafficBar"
-#define AppVersion "1.0.1"
+#define AppVersion "1.0.2"
 #define AppExe "TrafficBar.exe"
 ; Npcap is NOT bundled (its free license forbids redistribution). If it is missing the installer offers to download the
 ; official installer from npcap.com, checks its SHA-256 and starts it, so YOU accept Npcap's own license.
