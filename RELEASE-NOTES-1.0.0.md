@@ -34,9 +34,8 @@ Aplicaciones → NavTool) y luego instala TrafficBar — quedan registrados como
 configuración e historial se mudan solos la primera vez que abras TrafficBar.
 
 ## Notes / Notas
-- The executables are still **not code-signed** while the SignPath Foundation application is pending; SmartScreen may
-  warn. Check the SHA-256 below. / Los ejecutables **aún no están firmados** mientras la solicitud a SignPath está
-  pendiente; SmartScreen puede avisar. Comprueba el SHA-256.
+- **Requires Windows 10 or 11 (64-bit).** Windows 7/8/8.1 are not supported: the Python runtime does not run there (Windows 7 shows "api-ms-win-core-path-l1-1-0.dll is missing"). / **Requiere Windows 10 u 11 (64 bits).** Windows 7/8/8.1 no son compatibles: el runtime de Python no funciona ahí (en Windows 7 aparece «falta api-ms-win-core-path-l1-1-0.dll»).
+- The executables are **not code-signed**; SmartScreen may warn. Check the SHA-256 below. / Los ejecutables **no están firmados**; SmartScreen puede avisar. Comprueba el SHA-256.
 - Licensed under **GPL-3.0**. / Licencia **GPL-3.0**.
 
 Full history: [CHANGELOG.md](CHANGELOG.md). / Historial completo: [CHANGELOG.md](CHANGELOG.md).

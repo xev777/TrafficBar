@@ -9,17 +9,12 @@
 
 ## Under the hood / Por dentro
 - Builds now run on GitHub Actions instead of a personal computer, and the executable/installer carry version metadata
-  (product, version, author, license) — both required for the free code-signing application submitted to the
-  [SignPath Foundation](https://signpath.org/). See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) and
-  [PRIVACY.md](PRIVACY.md). / Las compilaciones se hacen ahora en GitHub Actions, y el ejecutable/instalador llevan
-  metadatos de versión — ambos requisitos de la solicitud de firma gratuita a SignPath Foundation.
+  (product, version, author, license) — so each binary can be traced to this repository. See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) and [PRIVACY.md](PRIVACY.md). / Las compilaciones se hacen ahora en GitHub Actions, y el ejecutable/instalador llevan metadatos de versión, para poder rastrear cada binario hasta este repositorio.
 - `compilar.ps1` only closes a NavTool process launched from its own build folder, never one you have installed or
   running. / `compilar.ps1` solo cierra un NavTool lanzado desde su propia carpeta de compilación.
 
 ## Notes / Notas
-- The executables are still **not code-signed** while the SignPath Foundation application is pending; SmartScreen may
-  warn. Check the SHA-256 below. / Los ejecutables **aún no están firmados** mientras la solicitud a SignPath está
-  pendiente; SmartScreen puede avisar. Comprueba el SHA-256.
+- The executables are **not code-signed**; SmartScreen may warn. Check the SHA-256 below. / Los ejecutables **no están firmados**; SmartScreen puede avisar. Comprueba el SHA-256.
 - Licensed under **GPL-3.0**. / Licencia **GPL-3.0**.
 
 Full history: [CHANGELOG.md](CHANGELOG.md). / Historial completo: [CHANGELOG.md](CHANGELOG.md).

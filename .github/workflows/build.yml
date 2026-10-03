@@ -1,7 +1,7 @@
 name: Build
 
 # Compila TrafficBar en los servidores de GitHub (no en un PC personal): así cada binario se puede verificar contra este
-# repositorio, condición necesaria para la firma gratuita de SignPath Foundation.
+# repositorio (ver la attestation de procedencia más abajo).
 on:
   push:
     branches: [main]
@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: read
+  id-token: write       # attestation de procedencia (firma sigstore de GitHub)
+  attestations: write
 
 jobs:
   build:
@@ -19,7 +21,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
@@ -46,5 +48,11 @@ jobs:
             Output/*.zip
           if-no-files-found: error
 
-      # Cuando SignPath Foundation apruebe el proyecto se añade aquí el paso de firma
-      # (signpath/github-action-submit-signing-request) usando el artefacto anterior. Ver CODE_SIGNING_POLICY.md.
+      # Procedencia verificable: cualquiera puede comprobar que un archivo salió de este repositorio con
+      #   gh attestation verify <archivo> --repo xev777/TrafficBar
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            Output/*.exe
+            Output/*.zip

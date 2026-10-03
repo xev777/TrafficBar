@@ -1,6 +1,6 @@
 """Genera version_info.txt (metadatos de versión del .exe: nombre del producto, versión, autor).
 
-SignPath y los antivirus esperan que el ejecutable declare quién es y qué versión es. Lee la versión de TrafficBar.iss:
+Los antivirus esperan que el ejecutable declare quién es y qué versión es. Lee la versión de TrafficBar.iss:
 
     python version_info.py
 """

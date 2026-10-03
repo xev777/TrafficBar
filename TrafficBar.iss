@@ -6,7 +6,7 @@
 ; {app}\idioma.txt y es el idioma inicial de la aplicación (luego se cambia desde la propia barra).
 
 #define AppName "TrafficBar"
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.1"
 #define AppExe "TrafficBar.exe"
 
 [Setup]
@@ -26,6 +26,8 @@ DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 ; Program Files: only an administrator can modify the installed files (see SEGURIDAD.md, S3)
 PrivilegesRequired=admin
+; The bundled Python runtime does not run on Windows 7/8/8.1: say so clearly instead of a cryptic missing-DLL error
+MinVersion=10.0
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=Output
 OutputBaseFilename=TrafficBar-Setup-{#AppVersion}
@@ -62,6 +64,9 @@ Name: "autostart"; Description: "{cm:TaskAutostart}"; Flags: unchecked
 
 [Files]
 Source: "dist\TrafficBar\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; GPL-3.0: the license text and third-party notices travel with the binary
+Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "LICENCIAS-TERCEROS.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"

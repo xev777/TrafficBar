@@ -13,7 +13,7 @@ if ($LASTEXITCODE -ne 0) { throw "extraer_textos.py falló" }
 python -c "import i18n,glob,sys; bad=[f for f in glob.glob('idiomas/*.json') if not f.endswith('plantilla.json') and not i18n.leer_pack(f)[0]]; sys.exit(1 if bad else 0)"
 if ($LASTEXITCODE -ne 0) { throw "Hay un pack de idioma inválido en .\idiomas" }
 
-# 0b) Metadatos de versión del .exe (producto, versión, autor): los pide SignPath y reducen falsas alarmas
+# 0b) Metadatos de versión del .exe (producto, versión, autor): reducen falsas alarmas de los antivirus
 python version_info.py
 if ($LASTEXITCODE -ne 0) { throw "version_info.py falló" }
 
@@ -26,7 +26,7 @@ if ($propios) {
     $propios | Stop-Process -Force -ErrorAction SilentlyContinue
 }
 if (Test-Path "$PSScriptRoot\dist") { Remove-Item "$PSScriptRoot\dist" -Recurse -Force }
-python -m PyInstaller --noconfirm --onedir --noconsole --name TrafficBar --icon trafficbar.ico --version-file version_info.txt `
+python -m PyInstaller --noconfirm --onedir --noupx --noconsole --name TrafficBar --icon trafficbar.ico --version-file version_info.txt `
     --add-data "trafficbar.ico;." --add-data "idiomas;idiomas" --add-data "creditos.json;." `
     --hidden-import traffic_monitor --hidden-import loadtrack --hidden-import load_panel `
     --hidden-import privacy --hidden-import report_view --hidden-import history `
@@ -63,6 +63,7 @@ $stage = "$PSScriptRoot\Output\_portable\TrafficBar"
 if (Test-Path "$PSScriptRoot\Output\_portable") { Remove-Item "$PSScriptRoot\Output\_portable" -Recurse -Force }
 New-Item -ItemType Directory $stage -Force | Out-Null
 Copy-Item "$PSScriptRoot\dist\TrafficBar\*" $stage -Recurse
+Copy-Item "$PSScriptRoot\LICENSE", "$PSScriptRoot\LICENCIAS-TERCEROS.md" $stage   # GPL: la licencia viaja con el binario
 Set-Content "$stage\portable.flag" "Portable mode: TrafficBar keeps its settings and history in the 'Datos' folder next to it."
 @"
 TrafficBar $version - portable version / versión portable

@@ -1,5 +1,30 @@
 # Changelog / Registro de cambios
 
+## 1.0.1 — 2026-10-02
+
+**Fixes / Correcciones**
+- **Windows 10 or 11 (64-bit) is now required, and the installer says so.** On Windows 7/8/8.1 the program failed with
+  cryptic errors ("api-ms-win-core-path-l1-1-0.dll is missing", "Failed to load Python DLL"): the Python runtime it is built
+  on does not run there. The installer now stops at the start with a clear message instead. / **Ahora se requiere Windows 10 u
+  11 (64 bits), y el instalador lo dice.** En Windows 7/8/8.1 el programa fallaba con errores crípticos («falta
+  api-ms-win-core-path-l1-1-0.dll», «Failed to load Python DLL»): el runtime de Python no funciona ahí. Ahora el instalador se
+  detiene al inicio con un mensaje claro.
+- The installer and the portable zip now include `LICENSE` (GPL-3.0) and `LICENCIAS-TERCEROS.md`. / El instalador y el zip portable
+  ahora incluyen `LICENSE` (GPL-3.0) y `LICENCIAS-TERCEROS.md`.
+
+**Under the hood / Por dentro**
+- UPX compression explicitly disabled (`--noupx`), fewer antivirus false positives. / Compresión UPX desactivada explícitamente.
+- The GitHub Actions build now publishes a build-provenance attestation (`gh attestation verify <file> --repo xev777/TrafficBar`),
+  and builds with Python 3.12, the same as local builds. / La compilación de GitHub Actions publica una attestation de procedencia
+  y usa Python 3.12, igual que las compilaciones locales.
+
+**Code signing / Firma de código**
+- The SignPath Foundation application was **declined** (30 Sep 2026: not enough public visibility yet). Releases remain
+  **unsigned**; verify them with the SHA-256 in the release notes. All mentions of SignPath were removed from the README, the
+  signing policy and old release notes. / La solicitud a SignPath Foundation fue **rechazada** (30 sep 2026: aún sin suficiente
+  visibilidad pública). Las versiones siguen **sin firmar**; verifícalas con el SHA-256 de las notas. Se quitaron las menciones
+  a SignPath del README, la política de firma y las notas anteriores.
+
 ## 1.0.0 — 2026-09-24
 
 **Renamed: NavTool is now TrafficBar / Cambio de nombre: NavTool ahora se llama TrafficBar**

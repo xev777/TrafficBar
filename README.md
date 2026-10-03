@@ -26,9 +26,16 @@ how pages load, who tracks you, and which programs use your network. Works with 
 
 Everything runs locally. **No telemetry, no accounts, no automatic updates.**
 
-## Code signing policy
+## Code signing
 
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) *(application in progress: until it is approved, releases are unsigned)*. See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) and the [privacy policy](PRIVACY.md).
+The current releases are **not digitally signed**; Windows SmartScreen may show a warning. Check the integrity of a download
+against the SHA-256 published in each release's notes:
+
+```powershell
+Get-FileHash .\TrafficBar-Setup-<version>.exe -Algorithm SHA256
+```
+
+See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) and the [privacy policy](PRIVACY.md).
 
 ## Install
 
@@ -37,8 +44,11 @@ Download from the [Releases](../../releases) page:
 * `TrafficBar-Setup-<version>.exe` — installer (English by default; Spanish available in the first screen).
 * `TrafficBar-Portable-<version>.zip` — portable, leaves nothing on the PC.
 
-Check the SHA-256 shown in the release notes. The executables are **not code-signed** yet, so Windows
-SmartScreen may warn.
+Check the SHA-256 shown in the release notes. The executables are **not code-signed**, so Windows
+SmartScreen may warn ("More info" → "Run anyway").
+
+**Requirements:** Windows 10 or 11, 64-bit. Windows 7, 8 and 8.1 are **not supported** (the Python runtime that
+TrafficBar is built on does not run on them; on Windows 7 you would see "api-ms-win-core-path-l1-1-0.dll is missing").
 
 The traffic monitor needs [Npcap](https://npcap.com) and administrator rights (TrafficBar does not bundle Npcap).
 

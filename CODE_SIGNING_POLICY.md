@@ -1,25 +1,33 @@
 # Code signing policy
 
-**Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).**
+**Status: the published binaries are not digitally signed.** Windows SmartScreen may show a warning the first time you run
+the installer. The project does not currently have a code-signing certificate; if one is obtained in the future, this page
+will be updated with the certificate's name and the signing process.
 
-> *Status:* the application to the SignPath Foundation is in progress. Until it is approved, the published binaries are
-> **not signed** (Windows SmartScreen may warn). This page describes the policy that will apply once they are.
+## How to verify a download without a signature
+Every release lists the SHA-256 of each file in its notes. Compare it with the file you downloaded:
 
-## What is signed
-Only binaries built **from this repository** by the public [GitHub Actions workflow](.github/workflows/build.yml):
-`TrafficBar.exe`, the installer (`TrafficBar-Setup-<version>.exe`) and the uninstaller. Third-party files bundled in the portable
-package (the Python runtime and Tk libraries) keep their own signatures and are not re-signed. Builds are never made or signed
-on a personal computer.
+```powershell
+Get-FileHash .\TrafficBar-Setup-<version>.exe -Algorithm SHA256
+```
+
+If the hashes differ, do not run the file. Download only from this repository's
+[Releases](https://github.com/xev777/TrafficBar/releases) page.
+
+## How the binaries are built
+Released from the source in this repository, with the build script [`compilar.ps1`](compilar.ps1): PyInstaller in folder mode
+(not a self-extracting single file), Microsoft Defender scan before packaging (the build stops if the executable is flagged),
+then Inno Setup for the installer. The public [GitHub Actions workflow](.github/workflows/build.yml) builds the same sources on
+GitHub's servers.
 
 ## Team and roles
 | Role | Person |
 |---|---|
 | Author / committer | Fernando Erazo ([@xev777](https://github.com/xev777)) |
 | Reviewer (approves pull requests from non-committers) | Fernando Erazo ([@xev777](https://github.com/xev777)) |
-| Approver (authorizes each signing request) | Fernando Erazo ([@xev777](https://github.com/xev777)) |
+| Release approver | Fernando Erazo ([@xev777](https://github.com/xev777)) |
 
-All maintainers use multi-factor authentication on GitHub and on SignPath. Changes from anyone else arrive as pull requests that
-a reviewer must approve before merging.
+Changes from anyone else arrive as pull requests that a reviewer must approve before merging.
 
 ## What TrafficBar does to your system (announced)
 TrafficBar is a network monitor and filter. It does **only** what you ask for, and every change is reversible from the app:

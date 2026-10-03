@@ -29,9 +29,7 @@ for good. / Sal de NavTool desde la bandeja, abre `%LOCALAPPDATA%\NavTool\config
 directamente la 1.1.4, que lo arregla de forma definitiva.
 
 ## Notes / Notas
-- The executables are still **not code-signed** while the SignPath Foundation application is pending; SmartScreen may
-  warn. Check the SHA-256 below. / Los ejecutables **aún no están firmados** mientras la solicitud a SignPath está
-  pendiente; SmartScreen puede avisar. Comprueba el SHA-256.
+- The executables are **not code-signed**; SmartScreen may warn. Check the SHA-256 below. / Los ejecutables **no están firmados**; SmartScreen puede avisar. Comprueba el SHA-256.
 - Licensed under **GPL-3.0**. / Licencia **GPL-3.0**.
 
 Full history: [CHANGELOG.md](CHANGELOG.md). / Historial completo: [CHANGELOG.md](CHANGELOG.md).
