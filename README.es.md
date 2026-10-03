@@ -1,11 +1,26 @@
 # TrafficBar
 
-*(Antes NavTool — renombrado en la 2.0.0 para evitar coincidir con el nombre de una empresa sin relación. Misma app, misma licencia, mismo autor.)*
+*(Antes NavTool — renombrado en la 1.0.0 para evitar coincidir con el nombre de una empresa sin relación. Misma app, misma licencia, mismo autor.)*
 
 **Una barra flotante para Windows que te muestra y controla lo que pasa con tu conexión a Internet**:
 cómo cargan las páginas, quién te rastrea y qué programas usan tu red. Funciona con todos los navegadores.
 
 *(English: [README.md](README.md))*
+
+![La barra de TrafficBar: ON/OFF, estado de carga, bloqueados, Tráfico, Informe, Historial, Estadísticas, buscador](docs/img/bar.png)
+
+## Capturas
+
+**Monitor de red** — cada programa, con quién habla y cuánto mueve, con totales exactos (captura con Npcap).
+
+![Ventana del monitor de red: velocidades de bajada y subida, conversaciones activas, gráfico en vivo y tabla por programa](docs/img/traffic-monitor.png)
+
+<table>
+<tr>
+<td width="50%" valign="top"><b>Panel de carga de sitios</b> — mira cada conexión mientras carga una página y corta la que quieras.<br><br><img src="docs/img/page-load.png" alt="Panel de carga con barra de progreso y las conexiones de cada sitio, cada una con su botón de cortar"></td>
+<td width="50%" valign="top"><b>Programas bloqueados</b> — programas sin acceso a Internet mediante reglas del Cortafuegos, y hasta cuándo.<br><br><img src="docs/img/blocked-programs.png" alt="Ventana de programas bloqueados"></td>
+</tr>
+</table>
 
 ## Qué hace
 

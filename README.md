@@ -1,11 +1,26 @@
 # TrafficBar
 
-*(Formerly NavTool — renamed in 2.0.0 to avoid a name clash with an unrelated company. Same app, same license, same author.)*
+*(Formerly NavTool — renamed at 1.0.0 to avoid a name clash with an unrelated company. Same app, same license, same author.)*
 
 **A floating bar for Windows that shows and controls what happens with your Internet connection** —
 how pages load, who tracks you, and which programs use your network. Works with every browser.
 
 *(Español: [README.es.md](README.es.md))*
+
+![The TrafficBar bar: ON/OFF, page-load status, blocked count, Traffic, Report, History, Statistics, search](docs/img/bar.png)
+
+## Screenshots
+
+**Network monitor** — every program, who it talks to, how much it moves, with exact totals (Npcap capture).
+
+![Network monitor window: download/upload rates, active conversations, live graph and a per-program table](docs/img/traffic-monitor.png)
+
+<table>
+<tr>
+<td width="50%" valign="top"><b>Page-load panel</b> — watch each connection while a page loads and cut any of them.<br><br><img src="docs/img/page-load.png" alt="Page-load panel with progress bar and per-site connections, each with a cut button"></td>
+<td width="50%" valign="top"><b>Blocked programs</b> — programs you cut off from the Internet with Windows Firewall rules, and when they expire.<br><br><img src="docs/img/blocked-programs.png" alt="Blocked programs window listing the programs without Internet access"></td>
+</tr>
+</table>
 
 ## What it does
 
