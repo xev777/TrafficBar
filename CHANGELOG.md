@@ -9,6 +9,11 @@
   11 (64 bits), y el instalador lo dice.** En Windows 7/8/8.1 el programa fallaba con errores crípticos («falta
   api-ms-win-core-path-l1-1-0.dll», «Failed to load Python DLL»): el runtime de Python no funciona ahí. Ahora el instalador se
   detiene al inicio con un mensaje claro.
+- **The installer now offers to install Npcap** (needed only by the traffic monitor) when it is missing: it asks first, downloads
+  the official installer from npcap.com, runs it only if its SHA-256 matches, and Npcap's own setup (with its license) opens.
+  Saying no changes nothing else. / **El instalador ahora ofrece instalar Npcap** (solo lo necesita el monitor de tráfico) si
+  falta: pregunta antes, descarga el instalador oficial de npcap.com, lo ejecuta solo si su SHA-256 coincide, y se abre el
+  asistente del propio Npcap (con su licencia). Decir que no no cambia nada más.
 - The installer and the portable zip now include `LICENSE` (GPL-3.0) and `LICENCIAS-TERCEROS.md`. / El instalador y el zip portable
   ahora incluyen `LICENSE` (GPL-3.0) y `LICENCIAS-TERCEROS.md`.
 

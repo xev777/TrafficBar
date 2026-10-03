@@ -8,6 +8,11 @@
 #define AppName "TrafficBar"
 #define AppVersion "1.0.1"
 #define AppExe "TrafficBar.exe"
+; Npcap is NOT bundled (its free license forbids redistribution). If it is missing the installer offers to download the
+; official installer from npcap.com, checks its SHA-256 and starts it, so YOU accept Npcap's own license.
+; To update: take the new file from https://npcap.com/dist/ and put its SHA-256 here.
+#define NpcapVersion "1.89"
+#define NpcapSha256 "8aed85e900d783d1308506e919587d3e540451947af8a82f2d04f819e44305cc"
 
 [Setup]
 AppId={{FA9D2CBD-4691-4E3A-AE9C-AB39DD6B2DE1}
@@ -53,8 +58,12 @@ english.TaskAutostart=Start TrafficBar with Windows (stays in the system tray)
 spanish.TaskAutostart=Iniciar TrafficBar con Windows (queda en la bandeja del sistema)
 english.RunNow=Open TrafficBar now
 spanish.RunNow=Abrir TrafficBar ahora
-english.NpcapNote=TrafficBar is installed.%n%nTo use the traffic monitor ("Traffic") you also need Npcap (npcap.com). The rest of the features do not need it.
-spanish.NpcapNote=TrafficBar está instalado.%n%nPara usar el monitor de tráfico ("Tráfico") necesitas además Npcap (npcap.com). El resto de funciones no lo necesita.
+english.NpcapAsk=TrafficBar is installed.%n%nThe traffic monitor ("Traffic") also needs Npcap, a free packet-capture driver from npcap.com that is not part of TrafficBar. The rest of the features work without it.%n%nDownload Npcap from npcap.com and start its installer now? You will see Npcap's own license and setup screens.
+spanish.NpcapAsk=TrafficBar está instalado.%n%nEl monitor de tráfico ("Tráfico") necesita además Npcap, un controlador gratuito de captura de paquetes de npcap.com que no forma parte de TrafficBar. El resto de funciones no lo necesita.%n%n¿Descargar Npcap desde npcap.com y abrir su instalador ahora? Verás la licencia y las pantallas del propio Npcap.
+english.NpcapDownloading=Downloading Npcap from npcap.com...
+spanish.NpcapDownloading=Descargando Npcap desde npcap.com...
+english.NpcapFailed=Npcap could not be downloaded or verified (no Internet connection, or the file did not match the expected checksum). Nothing was run.%n%nYou can install it later from https://npcap.com and the traffic monitor will work after that.
+spanish.NpcapFailed=No se pudo descargar o verificar Npcap (sin conexión a Internet, o el archivo no coincide con la suma de control esperada). No se ejecutó nada.%n%nPuedes instalarlo más tarde desde https://npcap.com y el monitor de tráfico funcionará después.
 english.DeleteData=Do you also want to delete your TrafficBar settings and history?%n%n
 spanish.DeleteData=¿Quieres borrar también tu configuración y tu historial de TrafficBar?%n%n
 
@@ -113,6 +122,26 @@ begin
   Result := True;
 end;
 
+// Offers Npcap (needed only by the traffic monitor). Asks first; downloads the official installer from npcap.com, runs it
+// only if its SHA-256 matches the pinned one, and lets the user go through Npcap's own license and setup screens.
+procedure OfrecerNpcap;
+var
+  Archivo: String;
+  Codigo: Integer;
+begin
+  if MsgBox(CustomMessage('NpcapAsk'), mbConfirmation, MB_YESNO) <> IDYES then
+    Exit;
+  try
+    WizardForm.StatusLabel.Caption := CustomMessage('NpcapDownloading');
+    DownloadTemporaryFile('https://npcap.com/dist/npcap-{#NpcapVersion}.exe', 'npcap-{#NpcapVersion}.exe', '{#NpcapSha256}', nil);
+    Archivo := ExpandConstant('{tmp}\npcap-{#NpcapVersion}.exe');
+    if not Exec(Archivo, '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, Codigo) then
+      MsgBox(CustomMessage('NpcapFailed'), mbError, MB_OK);
+  except
+    MsgBox(CustomMessage('NpcapFailed'), mbError, MB_OK);
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   Codigo: String;
@@ -123,7 +152,7 @@ begin
     if ActiveLanguage = 'spanish' then Codigo := 'es' else Codigo := 'en';
     SaveStringToFile(ExpandConstant('{app}\idioma.txt'), Codigo, False);
     if (not DirExists(ExpandConstant('{sys}\Npcap'))) and (not WizardSilent) then
-      MsgBox(CustomMessage('NpcapNote'), mbInformation, MB_OK);
+      OfrecerNpcap;
   end;
 end;
 

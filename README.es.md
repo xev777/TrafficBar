@@ -49,7 +49,7 @@ Comprueba el SHA-256 de las notas de la versión. Los ejecutables **no están fi
 **Requisitos:** Windows 10 u 11, de 64 bits. Windows 7, 8 y 8.1 **no son compatibles** (el runtime de Python sobre el que se
 construye TrafficBar no funciona en ellos; en Windows 7 verías «falta api-ms-win-core-path-l1-1-0.dll»).
 
-El monitor de tráfico necesita [Npcap](https://npcap.com) y permisos de administrador (TrafficBar no incluye Npcap).
+El monitor de tráfico necesita [Npcap](https://npcap.com) y permisos de administrador. TrafficBar no incluye Npcap (su licencia prohíbe redistribuirlo): si falta, **el instalador te ofrece descargarlo de npcap.com** (comprobando su SHA-256) y abre el instalador del propio Npcap, donde aceptas su licencia. Puedes decir que no: todo salvo el monitor de tráfico funciona sin él.
 
 ## Ejecutar desde el código
 

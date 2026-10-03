@@ -5,6 +5,9 @@
   errors ("api-ms-win-core-path-l1-1-0.dll is missing", "Failed to load Python DLL") because the Python runtime does not run
   there. / **Requiere Windows 10 u 11 (64 bits) y el instalador ahora lo dice.** En Windows 7/8/8.1 fallaba con errores
   crípticos porque el runtime de Python no funciona ahí.
+- **The installer offers to install Npcap** when it is missing (asks first; downloads the official file from npcap.com, checks its
+  SHA-256, opens Npcap's own installer). / **El instalador ofrece instalar Npcap** si falta (pregunta primero; descarga el archivo
+  oficial de npcap.com, comprueba su SHA-256 y abre el instalador del propio Npcap).
 - The installer and the portable zip include `LICENSE` (GPL-3.0) and `LICENCIAS-TERCEROS.md`. / El instalador y el zip portable
   incluyen la licencia GPL-3.0 y las licencias de terceros.
 - UPX compression explicitly disabled. / Compresión UPX desactivada explícitamente.

@@ -57,6 +57,13 @@ if ($LASTEXITCODE -ne 0) { throw "Inno Setup falló" }
 
 $setup = Get-ChildItem "$PSScriptRoot\Output\TrafficBar-Setup-*.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
+# 2b) El instalador también se analiza con Defender (descarga Npcap: un instalador que descarga es un patrón que vigilan)
+if (Test-Path $mp) {
+    $res = & $mp -Scan -ScanType 3 -File $setup.FullName -DisableRemediation 2>&1 | Out-String
+    if ($res -match "found (\d+) threats" -and [int]$Matches[1] -gt 0) { throw "Defender marca el instalador como amenaza:`n$res`nNo se publica." }
+    if ($res -match "found no threats") { Write-Host "Defender (instalador): sin amenazas" -ForegroundColor Green }
+}
+
 # 3) Versión portable: la misma carpeta + «portable.flag» (los datos van en la carpeta «Datos» de al lado)
 $version = ([regex]::Match((Get-Content "$PSScriptRoot\TrafficBar.iss" -Raw), '#define AppVersion "([^"]+)"')).Groups[1].Value
 $stage = "$PSScriptRoot\Output\_portable\TrafficBar"

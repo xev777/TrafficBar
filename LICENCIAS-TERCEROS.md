@@ -7,7 +7,7 @@ TrafficBar 1.1 has **one** runtime dependency besides Python itself.
 | Python / Tkinter (Tcl/Tk) | 3.12 | PSF License; Tcl/Tk: BSD-style | runtime and UI | yes |
 | psutil | 7.2.2 | BSD-3-Clause | processes, connections, network counters | yes |
 | PyInstaller | 6.22.0 | GPL-2.0-or-later **with a bootloader exception** (output may use any license) | builds the executable (build time only) | bootloader only |
-| Npcap | installed by the user | Npcap license (free for personal use) | packet-capture driver | **no** — not redistributed; TrafficBar loads `wpcap.dll` from `System32\Npcap` if present |
+| Npcap | installed by the user | Npcap license (free for personal use) | packet-capture driver | **no** — not redistributed; the installer can offer to download the official file from npcap.com (SHA-256 pinned) and start Npcap's own installer, so the user accepts Npcap's license; TrafficBar loads `wpcap.dll` from `System32\Npcap` if present |
 | Peter Lowe / StevenBlack lists | downloaded on demand by the user | see each project | optional block lists | **no** — never bundled |
 
 Packet capture, packet parsing (Ethernet / IPv4 / IPv6 / TCP / UDP / DNS) and the tray icon are implemented in the

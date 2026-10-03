@@ -50,7 +50,7 @@ SmartScreen may warn ("More info" → "Run anyway").
 **Requirements:** Windows 10 or 11, 64-bit. Windows 7, 8 and 8.1 are **not supported** (the Python runtime that
 TrafficBar is built on does not run on them; on Windows 7 you would see "api-ms-win-core-path-l1-1-0.dll is missing").
 
-The traffic monitor needs [Npcap](https://npcap.com) and administrator rights (TrafficBar does not bundle Npcap).
+The traffic monitor needs [Npcap](https://npcap.com) and administrator rights. TrafficBar does not bundle Npcap (its license forbids redistribution): if it is missing, **the installer offers to download it from npcap.com** (checking its SHA-256) and starts Npcap's own installer, where you accept its license. You can say no — everything except the traffic monitor works without it.
 
 ## Run from source
 
