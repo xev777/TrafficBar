@@ -1,5 +1,20 @@
 # Changelog / Registro de cambios
 
+## 1.0.3 — 2026-10-19
+
+**Fixes / Correcciones**
+- **The Windows proxy is now restored when Windows shuts down or you sign out** with the ⏻ button on. Before, only a normal exit
+  or the next launch cleaned it up; if the process was killed during shutdown, Internet could stay broken until TrafficBar was
+  opened again. / **El proxy de Windows ahora se restaura al apagar Windows o cerrar sesión** con el botón ⏻ encendido. Antes
+  solo se limpiaba al salir con normalidad o al abrir de nuevo; si el proceso moría durante el apagado, Internet podía quedar
+  sin funcionar hasta volver a abrir TrafficBar.
+
+**Under the hood / Por dentro**
+- The 163 automated tests now run in GitHub Actions before every build, and a failing test stops the build. / Las 163 pruebas
+  automáticas ahora se ejecutan en GitHub Actions antes de cada compilación, y una prueba fallida detiene la compilación.
+- GitHub Actions are pinned to exact commits and kept up to date by Dependabot (also for Python dependencies). / Las acciones de
+  GitHub quedan fijadas a commits exactos y Dependabot las mantiene al día (y también las dependencias de Python).
+
 ## 1.0.2 — 2026-10-02
 
 - Credits reworded to say who did what: "Design and direction: Fernando Erazo. Development with assistance from Claude
