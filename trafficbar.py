@@ -693,7 +693,7 @@ class Floating(tk.Tk):
                 "proxy_on": bool(self.proxy.server), "unseen": self._unseen,
                 "tel_unseen": self._tel_unseen,
                 "has_report": bool(self.last_report), "autostart": autostart_enabled(),
-                "can_autostart": bool(autostart_command())})
+                "can_autostart": bool(autostart_command())}, on_end_session=self._emergency_restore)
             self.tray.start()
         except Exception:
             self.tray = None            # sin bandeja la app sigue funcionando con la barra

@@ -17,15 +17,25 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+
+      - name: Tests
+        shell: powershell
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          python pruebas_funciones.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          python pruebas_seguridad.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
@@ -40,7 +50,7 @@ jobs:
 
       - name: Upload build artifacts
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: trafficbar-windows
           path: |
@@ -51,7 +61,7 @@ jobs:
       # Procedencia verificable: cualquiera puede comprobar que un archivo salió de este repositorio con
       #   gh attestation verify <archivo> --repo xev777/TrafficBar
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: |
             Output/*.exe

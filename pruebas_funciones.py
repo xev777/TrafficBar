@@ -51,9 +51,10 @@ cuota.comprobar_alertas(h, cfg, lambda k, t, d: (got.append(k), h.add_alert(k, t
 check("Al superar el 100 % avisa una vez más", got == ["quota80", "quota100"], str(got))
 d = h.daily(s, e)
 check("Consumo por día agrupado", len(d) >= 19 and d[0]["d"] == 0)
-h.add_minute(int(time.time() - 40 * 86400), 1, 1); h.add_alert("x", "viejo", "", "")
-h.purge(30)
-check("La purga conserva 62 días de tráfico", h.totals(time.time() - 45 * 86400, time.time() - 35 * 86400) == (1, 1))
+hp = History(os.path.join(tmp, "hp.db"))        # base propia: los datos fijos de arriba dependen de la fecha de hoy
+hp.add_minute(int(time.time() - 40 * 86400), 1, 1); hp.add_alert("x", "viejo", "", "")
+hp.purge(30)
+check("La purga conserva 62 días de tráfico", hp.totals(time.time() - 45 * 86400, time.time() - 35 * 86400) == (1, 1))
 
 # ---------------- programas
 progdir = os.path.join(tmp, "app"); os.makedirs(progdir)
@@ -314,6 +315,17 @@ tr_test = _tray.Tray("x.ico", lambda a: None, lambda: {"proxy_on": False, "unsee
                                                         "autostart": False, "can_autostart": False})
 check("El menú de la bandeja incluye la opción de restaurar posición",
       any(item and item[1] == "reset_position" for item in tr_test._items()))
+_fin = []
+tr_fin = _tray.Tray("x.ico", lambda a: None, lambda: {"proxy_on": False, "unseen": 0, "has_report": False,
+                                                       "autostart": False, "can_autostart": False},
+                    on_end_session=lambda: _fin.append(1))
+check("Al apagar Windows (WM_ENDSESSION) la bandeja restaura el proxy y permite el cierre",
+      tr_fin._proc(0, _tray.WM_QUERYENDSESSION, 0, 0) == 1 and tr_fin._proc(0, _tray.WM_ENDSESSION, 1, 0) == 0
+      and _fin == [1])
+tr_fin._proc(0, _tray.WM_ENDSESSION, 0, 0)
+check("Si el cierre de sesión se cancela (wParam=0) no se restaura nada", _fin == [1])
+check("La bandeja de la app está conectada a la restauración de emergencia del proxy",
+      app.tray is None or app.tray.on_end_session == app._emergency_restore)
 
 # ---------------- telemetría: detección, historial y ventana
 import traffic_monitor as tm
@@ -374,3 +386,5 @@ app.bg_engine = None
 
 app.quit_app(); shutil.rmtree(tmp, ignore_errors=True)
 print(f"\nRESULTADO: {ok} bien, {fail} fallos")
+sys.stdout.flush()
+os._exit(1 if fail else 0)

@@ -8,6 +8,7 @@ from i18n import tr
 
 WM_APP_TRAY = 0x8000 + 1                       # mensaje de retorno del icono
 WM_CLOSE, WM_DESTROY, WM_NULL = 0x0010, 0x0002, 0x0000
+WM_QUERYENDSESSION, WM_ENDSESSION = 0x0011, 0x0016
 WM_LBUTTONUP, WM_RBUTTONUP, WM_CONTEXTMENU = 0x0202, 0x0205, 0x007B
 NIM_ADD, NIM_MODIFY, NIM_DELETE = 0, 1, 2
 NIF_MESSAGE, NIF_ICON, NIF_TIP, NIF_INFO = 0x1, 0x2, 0x4, 0x10
@@ -71,8 +72,9 @@ class Tray:
     """Las acciones del menú se entregan a `post(nombre)`, que las encola para que las ejecute el hilo
     de la interfaz. `state()` devuelve un dict con proxy_on, unseen, has_report, autostart, can_autostart."""
 
-    def __init__(self, icon_path, post, state):
+    def __init__(self, icon_path, post, state, on_end_session=None):
         self.post, self.state, self.icon_path = post, state, icon_path
+        self.on_end_session = on_end_session
         self.hwnd = None
         self.hicon = None
         self.tip = "TrafficBar"
@@ -148,6 +150,12 @@ class Tray:
 
     def _proc(self, hwnd, msg, wp, lp):
         try:
+            if msg == WM_QUERYENDSESSION:
+                return 1
+            if msg == WM_ENDSESSION:                    # Windows se apaga o cierra sesión: no dejar el proxy roto
+                if wp and self.on_end_session:
+                    self.on_end_session()
+                return 0
             if msg == WM_APP_TRAY:
                 ev = lp & 0xFFFF
                 if ev == WM_LBUTTONUP:
