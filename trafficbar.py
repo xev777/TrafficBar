@@ -795,11 +795,29 @@ class Floating(tk.Tk):
         else:
             messagebox.showinfo("TrafficBar", tr("Tienes la última versión ({v}).").format(v=actual), parent=self)
 
-    def _notify(self, title, message):
-        """Llamado desde el vigilante (otro hilo): aviso junto al reloj y actualiza el contador."""
+    def _notify(self, title, message, bloquear=None):
+        """Llamado desde el vigilante (otro hilo): aviso junto al reloj y actualiza el contador.
+        `bloquear` = (nombre, ruta): hacer clic en el globo abre la confirmación para bloquear ese programa."""
         if self.tray:
-            self.tray.notify(tr(title), tr(message))
+            accion = (lambda: self.block_from_alert(*bloquear)) if bloquear else None
+            self.tray.notify(tr(title), tr(message), accion)
         self._acts.put("badge")
+
+    def block_from_alert(self, nombre, ruta):
+        """Clic en el globo de «nuevo programa»: siempre pide confirmación antes de crear reglas en el Cortafuegos."""
+        self.show_bar()
+        if not programas.es_admin():
+            messagebox.showinfo("TrafficBar", tr("Bloquear requiere permisos de administrador. "
+                                "Abre 📡 Tráfico y acepta reiniciar como administrador."), parent=self)
+            return
+        mins = programas.preguntar(self, nombre, ruta)
+        if mins is None:
+            return
+        ok, why = programas.bloquear(ruta, mins)
+        if ok:
+            messagebox.showinfo("TrafficBar", tr("«{n}» ya no tiene acceso a Internet. Puedes deshacerlo en 🚫 Bloqueados.").format(n=nombre), parent=self)
+        else:
+            messagebox.showerror("TrafficBar", why, parent=self)
 
     def refresh_alert_badge(self):
         self._unseen = HIST.unseen_alerts()

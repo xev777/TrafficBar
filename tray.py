@@ -2,6 +2,7 @@
 usa directamente Shell_NotifyIcon y un menú emergente de Windows mediante ctypes."""
 import ctypes
 import threading
+import time
 from ctypes import wintypes
 
 from i18n import tr
@@ -10,6 +11,8 @@ WM_APP_TRAY = 0x8000 + 1                       # mensaje de retorno del icono
 WM_CLOSE, WM_DESTROY, WM_NULL = 0x0010, 0x0002, 0x0000
 WM_QUERYENDSESSION, WM_ENDSESSION = 0x0011, 0x0016
 WM_LBUTTONUP, WM_RBUTTONUP, WM_CONTEXTMENU = 0x0202, 0x0205, 0x007B
+NIN_BALLOONUSERCLICK = 0x0405                   # el usuario hizo clic en el globo de aviso
+ACCION_GLOBO_SEG = 60                           # un clic en el globo solo vale durante este tiempo
 NIM_ADD, NIM_MODIFY, NIM_DELETE = 0, 1, 2
 NIF_MESSAGE, NIF_ICON, NIF_TIP, NIF_INFO = 0x1, 0x2, 0x4, 0x10
 NIIF_INFO = 0x1
@@ -158,7 +161,9 @@ class Tray:
                 return 0
             if msg == WM_APP_TRAY:
                 ev = lp & 0xFFFF
-                if ev == WM_LBUTTONUP:
+                if ev == NIN_BALLOONUSERCLICK:
+                    self._clic_globo()
+                elif ev == WM_LBUTTONUP:
                     self.post("toggle_bar")
                 elif ev in (WM_RBUTTONUP, WM_CONTEXTMENU):
                     self._menu(hwnd)
@@ -209,7 +214,15 @@ class Tray:
         except Exception:
             pass
 
-    def notify(self, title, message):
+    def _clic_globo(self):
+        accion, hasta = getattr(self, "_accion_globo", (None, 0))
+        self._accion_globo = (None, 0)
+        if accion and time.time() < hasta:
+            self.post(accion)
+
+    def notify(self, title, message, accion=None):
+        """`accion`: función opcional que se ejecuta (en la interfaz) si el usuario hace clic en el globo."""
+        self._accion_globo = (accion, time.time() + ACCION_GLOBO_SEG) if accion else (None, 0)
         try:
             d = self._data(NIF_INFO)
             d.szInfoTitle, d.szInfo, d.dwInfoFlags = title[:63], message[:255], NIIF_INFO

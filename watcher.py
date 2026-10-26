@@ -168,13 +168,16 @@ class Watcher(threading.Thread):
             self.alert("path", "Un programa conocido se ejecuta desde otra ubicación",
                        f"{name} ya se había visto en {', '.join(sorted(o for o in others if o)) or 'otra ruta'}; "
                        f"ahora corre desde {where} y se conecta a {ip}:{port}. Si no lo esperabas, "
-                       "puede ser un programa que se hace pasar por otro.", name)
+                       "puede ser un programa que se hace pasar por otro.", name,
+                       bloquear=(name, path) if path else None)
         else:
             self.alert("new", "Nuevo programa con acceso a Internet",
-                       f"{name} se conectó por primera vez a {ip}:{port}. Ruta: {where}.", name)
+                       f"{name} se conectó por primera vez a {ip}:{port}. Ruta: {where}.", name,
+                       bloquear=(name, path) if path else None)
 
     # ---- alertas
-    def alert(self, kind, title, detail, proc=""):
+    def alert(self, kind, title, detail, proc="", bloquear=None):
+        """`bloquear`: (nombre, ruta) del programa; el aviso invita a hacer clic para bloquearlo."""
         now = time.time()
         if now - self.cool.get((kind, proc), 0) < COOLDOWN:
             return False
@@ -186,8 +189,12 @@ class Watcher(threading.Thread):
             self.cool.clear()
         title, detail = tr(title), tr(detail)          # se guarda en el idioma activo
         self.hist.add_alert(kind, title, detail, proc)
+        texto = detail if len(detail) < 200 else detail[:197] + "…"
         try:
-            self.notify(title, detail if len(detail) < 200 else detail[:197] + "…")
+            if bloquear:
+                self.notify(title, texto[:200] + "\n" + tr("Haz clic aquí para bloquearlo."), bloquear)
+            else:
+                self.notify(title, texto)
         except Exception:
             pass
         return True

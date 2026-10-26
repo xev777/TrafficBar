@@ -6,6 +6,10 @@
 - **Export to CSV in every History tab** (Traffic, Connections, Alerts, Programs, Pages). The tabs that contain sites or paths ask
   whether to omit them; cells are formula-injection safe. / **Exportar a CSV en cada pestaña del Historial** (Tráfico, Conexiones,
   Alertas, Programas, Páginas). Las que contienen sitios o rutas preguntan si omitirlos; a prueba de inyección de fórmulas.
+- **Click the "new program" notification to block it**: the balloon invites you to click it, which opens the usual confirmation
+  (1 h / 4 h / until unblocked); nothing is blocked without confirming. / **Haz clic en el aviso de «programa nuevo» para
+  bloquearlo**: el globo te invita a hacer clic y se abre la confirmación de siempre (1 h / 4 h / hasta desbloquear); nunca
+  se bloquea nada sin confirmar.
 - **Check for updates** (manual, in the right-click menu): one HTTPS request to GitHub, nothing is sent, nothing is downloaded,
   never automatic. / **Buscar actualizaciones** (manual, en el menú del clic derecho): una petición HTTPS a GitHub, no envía
   nada, no descarga nada, nunca es automático.

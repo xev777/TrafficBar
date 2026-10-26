@@ -403,6 +403,48 @@ leidas = list(csv.reader(open(rcsv, encoding="utf-8-sig", newline="")))
 check("CSV: se escribe con cabecera y el nombre peligroso queda neutralizado",
       n == len(filas) and leidas[0][0] == "tipo" and any(r[1].startswith("'=HYPERLINK") for r in leidas[1:]))
 
+# ---------------- aviso de programa nuevo con clic para bloquear
+import tray as _tray2
+_avisos_b = []
+hb = History(os.path.join(tmp, "hb.db"))
+hb.add_program("viejo.exe|c:\\viejo.exe", "viejo.exe", "C:\\viejo.exe", baseline=True)
+wb = wt.Watcher(hb, lambda: n.CFG, lambda *a: _avisos_b.append(a), lambda: None)
+wb.baseline_pending = False
+wb.process_connections([(1, "8.8.8.8", 443)], lambda pid: ("nuevo.exe", "C:\\Apps\\nuevo.exe"))
+wb.process_connections([(2, "8.8.4.4", 443)], lambda pid: ("sinruta.exe", ""))
+check("Programa nuevo con ruta: el aviso trae (nombre, ruta) para bloquearlo y la invitación a hacer clic",
+      len(_avisos_b) == 2 and len(_avisos_b[0]) == 3 and _avisos_b[0][2] == ("nuevo.exe", "C:\\Apps\\nuevo.exe")
+      and "bloquear" in _avisos_b[0][1].lower())
+check("Programa nuevo sin ruta conocida: aviso normal, sin acción de bloqueo", len(_avisos_b[1]) == 2)
+_posts = []
+tb = _tray2.Tray("x.ico", _posts.append, lambda: {"proxy_on": False, "unseen": 0, "has_report": False,
+                                                    "bar_visible": True, "autostart": False})
+_f = lambda: None
+tb._accion_globo = (_f, time.time() + 60); tb._clic_globo()
+tb._clic_globo()
+check("Bandeja: el clic en el globo ejecuta la acción una sola vez", _posts == [_f])
+tb._accion_globo = (_f, time.time() - 1); _posts.clear(); tb._clic_globo()
+check("Bandeja: un clic en un globo viejo (más de 60 s) no hace nada", _posts == [])
+import programas as _pg
+from tkinter import messagebox as _mb
+_o = (_pg.es_admin, _pg.preguntar, _pg.bloquear, _mb.showinfo, _mb.showerror)
+_llam = {"bloq": [], "msg": []}
+_mb.showinfo = lambda *a, **k: _llam["msg"].append(a)
+_mb.showerror = lambda *a, **k: _llam["msg"].append(a)
+_pg.bloquear = lambda ruta, m: (_llam["bloq"].append((ruta, m)), (True, ""))[1]
+_pg.es_admin = lambda: False
+_pg.preguntar = lambda *a: 60
+app.block_from_alert("nuevo.exe", "C:\\Apps\\nuevo.exe")
+check("Bloquear desde el aviso sin permisos de administrador: avisa y no crea reglas", _llam["bloq"] == [] and bool(_llam["msg"]))
+_pg.es_admin = lambda: True; _pg.preguntar = lambda *a: None
+app.block_from_alert("nuevo.exe", "C:\\Apps\\nuevo.exe")
+check("Bloquear desde el aviso: si el usuario cancela la confirmación no se bloquea nada", _llam["bloq"] == [])
+_pg.preguntar = lambda *a: 60
+app.block_from_alert("nuevo.exe", "C:\\Apps\\nuevo.exe")
+check("Bloquear desde el aviso: tras confirmar se bloquea esa ruta durante los minutos elegidos",
+      _llam["bloq"] == [("C:\\Apps\\nuevo.exe", 60)])
+_pg.es_admin, _pg.preguntar, _pg.bloquear, _mb.showinfo, _mb.showerror = _o
+
 # ---------------- exportación CSV por pestaña (con y sin datos de navegación)
 he.add_conn(t0 + 100, "chrome.exe", "93.184.216.34", 443, "example.com")
 he.add_alert("new", "Nuevo programa", "x.exe se conectó a 1.2.3.4:443. Ruta: C:\\Users\\yo\\x.exe", "x.exe")
