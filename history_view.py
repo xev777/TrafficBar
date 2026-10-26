@@ -3,6 +3,7 @@ import time
 import tkinter as tk
 from tkinter import messagebox, ttk
 
+from i18n import tr
 from privacy import GRADE_COLOR
 from tooltip import tip
 
@@ -110,6 +111,22 @@ class HistoryWindow(tk.Toplevel):
         return tk.Label(parent, text=text, bg=BG, fg=MUTED, anchor="w", justify="left",
                         font=("Segoe UI", 9), wraplength=940)
 
+    def _export_csv(self):
+        from tkinter import filedialog, messagebox
+        import time
+        import exportar
+        until = int(time.time())
+        since = until - RANGES[self.range_name.get()][0]
+        ruta = filedialog.asksaveasfilename(parent=self, defaultextension=".csv",
+                                            filetypes=[("CSV", "*.csv")], initialfile="trafficbar-uso.csv")
+        if not ruta:
+            return
+        try:
+            n = exportar.escribir_csv(ruta, exportar.filas_uso(self.hist, since, until))
+            messagebox.showinfo("TrafficBar", tr("Exportadas {n} filas.").format(n=n), parent=self)
+        except OSError as e:
+            messagebox.showerror("TrafficBar", str(e), parent=self)
+
     # ---- línea de tiempo
     def _build_timeline(self, f):
         top = tk.Frame(f, bg=BG)
@@ -120,6 +137,7 @@ class HistoryWindow(tk.Toplevel):
                            command=self.refresh, indicatoron=False, bg=PANEL, fg=FG,
                            selectcolor="#27405f", activebackground="#27405f", relief="flat",
                            padx=10, pady=3, bd=0).pack(side="left", padx=2)
+        self._button(top, "Exportar CSV", self._export_csv, side="right")
         self.tl_canvas = tk.Canvas(f, height=280, bg="#0f1a2b", highlightthickness=0)
         self.tl_canvas.pack(fill="x", padx=8)
         self.tl_canvas.bind("<Motion>", self._tl_hover)

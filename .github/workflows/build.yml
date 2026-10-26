@@ -44,6 +44,14 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File .\compilar.ps1
 
+      # SBOM (lista de componentes, CycloneDX): qué librerías de terceros lleva cada versión
+      - name: SBOM (CycloneDX)
+        shell: powershell
+        run: |
+          python -m pip install "cyclonedx-bom==4.6.1"
+          cyclonedx-py requirements requirements.txt --of JSON -o Output/TrafficBar-sbom.cdx.json
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
       - name: Hashes
         shell: powershell
         run: Get-FileHash Output\*.exe, Output\*.zip -Algorithm SHA256 | Format-Table Hash, @{n="File";e={Split-Path $_.Path -Leaf}} -AutoSize
@@ -56,6 +64,7 @@ jobs:
           path: |
             Output/*.exe
             Output/*.zip
+            Output/*.cdx.json
           if-no-files-found: error
 
       # Procedencia verificable: cualquiera puede comprobar que un archivo salió de este repositorio con
@@ -66,3 +75,4 @@ jobs:
           subject-path: |
             Output/*.exe
             Output/*.zip
+            Output/*.cdx.json

@@ -1,5 +1,15 @@
 # Changelog / Registro de cambios
 
+## Unreleased (1.1.0)
+
+**New / Novedades**
+- **Export usage to CSV** from History (per day and per program, for the selected range; formula-injection safe). /
+  **Exportar el consumo a CSV** desde Historial (por día y por programa, según el rango elegido; a prueba de inyección de fórmulas).
+- **Check for updates** (manual, in the right-click menu): one HTTPS request to GitHub, nothing is sent, nothing is downloaded,
+  never automatic. / **Buscar actualizaciones** (manual, en el menú del clic derecho): una petición HTTPS a GitHub, no envía
+  nada, no descarga nada, nunca es automático.
+- **SBOM** (CycloneDX) attached to each build. / **SBOM** (CycloneDX) en cada compilación.
+
 ## 1.0.3 — 2026-10-19
 
 **Fixes / Correcciones**

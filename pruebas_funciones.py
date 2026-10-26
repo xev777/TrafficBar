@@ -384,6 +384,50 @@ check("El botón de «Tráfico» no cambia de color con el modo administrador",
       app._btns["traffic"].cget("bg") == "#1f6fa8")
 app.bg_engine = None
 
+# ---------------- exportación a CSV
+import csv
+import exportar
+check("CSV: las celdas que empiezan por = + - @ se neutralizan (inyección de fórmulas)",
+      all(exportar.celda(x).startswith("'") for x in ("=1+1", "+cmd", "-2", "@SUM(A1)")) and exportar.celda("chrome.exe") == "chrome.exe")
+he = History(os.path.join(tmp, "he.db"))
+t0 = int(time.time()) - 3 * 86400
+he.add_minute(t0 + 60, 5 * 1024 * 1024, 1024 * 1024)
+he.add_proc_minute(t0 + 60, '=HYPERLINK("http://x")', 4 * 1024 * 1024, 0)
+he.add_proc_minute(t0 + 60, "chrome.exe", 1024 * 1024, 1024 * 1024)
+filas = exportar.filas_uso(he, t0, t0 + 86400)
+check("CSV: incluye el día y los programas del rango con los MB correctos",
+      ("dia" in {f[0] for f in filas}) and ("programa", "chrome.exe", 1.0, 1.0) in filas)
+rcsv = os.path.join(tmp, "uso.csv")
+n = exportar.escribir_csv(rcsv, filas)
+leidas = list(csv.reader(open(rcsv, encoding="utf-8-sig", newline="")))
+check("CSV: se escribe con cabecera y el nombre peligroso queda neutralizado",
+      n == len(filas) and leidas[0][0] == "tipo" and any(r[1].startswith("'=HYPERLINK") for r in leidas[1:]))
+
+# ---------------- comprobación manual de versión
+import actualizar
+import json as _json
+import io
+def _resp(tag="v9.9.9", url="https://github.com/xev777/TrafficBar/releases/tag/v9.9.9", **extra):
+    return _json.dumps({"tag_name": tag, "html_url": url, **extra})
+check("Actualizar: detecta una versión mayor y devuelve su página",
+      actualizar.analizar(_resp(), "1.0.3") == (True, "9.9.9", "https://github.com/xev777/TrafficBar/releases/tag/v9.9.9"))
+check("Actualizar: la misma versión o una menor no avisa",
+      actualizar.analizar(_resp("v1.0.3"), "1.0.3")[0] is False and actualizar.analizar(_resp("v1.0.2"), "1.0.3")[0] is False)
+check("Actualizar: ignora pre-lanzamientos y borradores",
+      actualizar.analizar(_resp(prerelease=True), "1.0.3")[0] is False)
+check("Actualizar: rechaza respuestas con una URL ajena o una versión rara (no abre páginas de terceros)",
+      actualizar.analizar(_resp(url="https://evil.example/x"), "1.0.3") is None
+      and actualizar.analizar(_resp(tag="9.9.9-rc; calc"), "1.0.3") is None
+      and actualizar.analizar("no es json", "1.0.3") is None)
+class _R(io.BytesIO):
+    def __enter__(self): return self
+    def __exit__(self, *a): self.close()
+check("Actualizar: comprobar() funciona con una respuesta simulada y descarta las gigantes",
+      actualizar.comprobar("1.0.3", abrir=lambda r, t: _R(_resp().encode()))[0] is True
+      and actualizar.comprobar("1.0.3", abrir=lambda r, t: _R(b"x" * (300 * 1024))) is None)
+def _falla(r, t): raise OSError("sin red")
+check("Actualizar: sin red devuelve None sin lanzar excepciones", actualizar.comprobar("1.0.3", abrir=_falla) is None)
+
 app.quit_app(); shutil.rmtree(tmp, ignore_errors=True)
 print(f"\nRESULTADO: {ok} bien, {fail} fallos")
 sys.stdout.flush()

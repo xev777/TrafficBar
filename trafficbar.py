@@ -776,6 +776,25 @@ class Floating(tk.Tk):
         save_cfg(CFG)
         self.show_bar()
 
+    def check_updates(self):
+        """Comprobación manual (una petición HTTPS a GitHub, sin enviar datos); en un hilo para no congelar la barra."""
+        import actualizar
+        from ayuda import VERSION
+
+        def work():
+            res = actualizar.comprobar(VERSION)
+            self.after(0, lambda: self._show_update(res, VERSION))
+        threading.Thread(target=work, daemon=True).start()
+
+    def _show_update(self, res, actual):
+        if res is None:
+            messagebox.showwarning("TrafficBar", tr("No se pudo comprobar (sin conexión o respuesta no válida)."), parent=self)
+        elif res[0]:
+            if messagebox.askyesno("TrafficBar", tr("Hay una versión nueva: {v}. ¿Abrir la página de descarga?").format(v=res[1]), parent=self):
+                webbrowser.open_new_tab(res[2])
+        else:
+            messagebox.showinfo("TrafficBar", tr("Tienes la última versión ({v}).").format(v=actual), parent=self)
+
     def _notify(self, title, message):
         """Llamado desde el vigilante (otro hilo): aviso junto al reloj y actualiza el contador."""
         if self.tray:
@@ -1358,6 +1377,7 @@ class Floating(tk.Tk):
         m.add_separator()
         m.add_command(label="❓ Ayuda", command=self.win_help)
         m.add_command(label="Acerca de TrafficBar", command=lambda: self.win_help("Acerca de"))
+        m.add_command(label="Buscar actualizaciones…", command=self.check_updates)
         m.add_separator()
         m.add_command(label="Ocultar en la bandeja del sistema", command=self.hide_bar)
         self._menu_until = time.time() + 8
