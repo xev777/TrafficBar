@@ -703,6 +703,7 @@
     "Buscar actualizaciones…": "Check for updates…",
     "No se pudo comprobar (sin conexión o respuesta no válida).": "Could not check (no connection or invalid response).",
     "Hay una versión nueva: {v}. ¿Abrir la página de descarga?": "A new version is available: {v}. Open the download page?",
-    "Tienes la última versión ({v}).": "You have the latest version ({v})."
+    "Tienes la última versión ({v}).": "You have the latest version ({v}).",
+    "Este archivo contiene los sitios que visitas y datos de tu equipo, en texto sin protección. No lo dejes en carpetas sincronizadas ni lo compartas sin revisarlo.\n\n¿Omitir sitios, destinos, rutas y detalles?\n\nSí = omitir · No = incluir todo · Cancelar = no exportar": "This file contains the sites you visit and data about your PC, as unprotected text. Do not leave it in synced folders or share it without reviewing it.\n\nOmit sites, destinations, paths and details?\n\nYes = omit · No = include everything · Cancel = do not export"
   }
 }

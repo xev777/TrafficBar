@@ -3,8 +3,9 @@
 ## Unreleased (1.1.0)
 
 **New / Novedades**
-- **Export usage to CSV** from History (per day and per program, for the selected range; formula-injection safe). /
-  **Exportar el consumo a CSV** desde Historial (por día y por programa, según el rango elegido; a prueba de inyección de fórmulas).
+- **Export to CSV in every History tab** (Traffic, Connections, Alerts, Programs, Pages). The tabs that contain sites or paths ask
+  whether to omit them; cells are formula-injection safe. / **Exportar a CSV en cada pestaña del Historial** (Tráfico, Conexiones,
+  Alertas, Programas, Páginas). Las que contienen sitios o rutas preguntan si omitirlos; a prueba de inyección de fórmulas.
 - **Check for updates** (manual, in the right-click menu): one HTTPS request to GitHub, nothing is sent, nothing is downloaded,
   never automatic. / **Buscar actualizaciones** (manual, en el menú del clic derecho): una petición HTTPS a GitHub, no envía
   nada, no descarga nada, nunca es automático.

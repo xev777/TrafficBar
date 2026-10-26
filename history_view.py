@@ -111,21 +111,53 @@ class HistoryWindow(tk.Toplevel):
         return tk.Label(parent, text=text, bg=BG, fg=MUTED, anchor="w", justify="left",
                         font=("Segoe UI", 9), wraplength=940)
 
-    def _export_csv(self):
-        from tkinter import filedialog, messagebox
-        import time
+    def _guardar_csv(self, cab, filas, nombre):
+        from tkinter import filedialog
         import exportar
-        until = int(time.time())
-        since = until - RANGES[self.range_name.get()][0]
         ruta = filedialog.asksaveasfilename(parent=self, defaultextension=".csv",
-                                            filetypes=[("CSV", "*.csv")], initialfile="trafficbar-uso.csv")
+                                            filetypes=[("CSV", "*.csv")], initialfile=nombre)
         if not ruta:
             return
         try:
-            n = exportar.escribir_csv(ruta, exportar.filas_uso(self.hist, since, until))
+            n = exportar.escribir_csv(ruta, filas, cab)
             messagebox.showinfo("TrafficBar", tr("Exportadas {n} filas.").format(n=n), parent=self)
         except OSError as e:
             messagebox.showerror("TrafficBar", str(e), parent=self)
+
+    def _preguntar_privado(self):
+        """True = omitir sitios y destinos; False = incluirlos; None = cancelar."""
+        return messagebox.askyesnocancel(
+            "TrafficBar",
+            tr("Este archivo contiene los sitios que visitas y datos de tu equipo, en texto sin protección. "
+               "No lo dejes en carpetas sincronizadas ni lo compartas sin revisarlo.\n\n"
+               "¿Omitir sitios, destinos, rutas y detalles?\n\n"
+               "Sí = omitir · No = incluir todo · Cancelar = no exportar"),
+            parent=self)
+
+    def _export_csv(self):
+        """Pestaña Tráfico: consumo por día y por programa del rango elegido (sin sitios)."""
+        import exportar
+        until = int(time.time())
+        since = until - RANGES[self.range_name.get()][0]
+        self._guardar_csv(("tipo", "nombre", "bajada_MB", "subida_MB"),
+                          exportar.filas_uso(self.hist, since, until), "trafficbar-trafico.csv")
+
+    def _export_tab(self, tab):
+        import exportar
+        priv = self._preguntar_privado()
+        if priv is None:
+            return
+        if tab == "conns":
+            since, until = self._conn_range()
+            cab, filas = exportar.filas_conexiones(
+                self.hist.conns(since, until, self.proc_filter.get().strip()), priv)
+        elif tab == "alerts":
+            cab, filas = exportar.filas_alertas(self.hist.alerts(), priv)
+        elif tab == "programs":
+            cab, filas = exportar.filas_programas(self.hist.programs(), priv)
+        else:
+            cab, filas = exportar.filas_paginas(self.hist.reports(), priv)
+        self._guardar_csv(cab, filas, f"trafficbar-{tab}.csv")
 
     # ---- línea de tiempo
     def _build_timeline(self, f):
@@ -254,6 +286,7 @@ class HistoryWindow(tk.Toplevel):
         cb.bind("<<ComboboxSelected>>", lambda ev: self._fill_conns())
         tip(self._button(bar, "Buscar", self._fill_conns, ACC),
             "Aplica el periodo y el filtro de programa. También funciona con Enter en el campo.")
+        self._button(bar, "Exportar CSV", lambda: self._export_tab("conns"), side="right")
         self.conn_count = tk.Label(bar, text="", bg=BG, fg=MUTED)
         self.conn_count.pack(side="right")
         box, self.conn_tree = self._tree(f, (("t", "Hora"), ("p", "Programa"), ("d", "Se conectó a"),
@@ -303,6 +336,7 @@ class HistoryWindow(tk.Toplevel):
         row.pack(fill="x", padx=8)
         tip(self._button(row, "Marcar todas como leídas", self._mark_seen),
             "Quita el aviso de «nuevas» de las alertas. Las alertas se conservan en la lista.")
+        self._button(row, "Exportar CSV", lambda: self._export_tab("alerts"), side="right")
         self._note(f, "Doble clic en una alerta para leerla completa.").pack(fill="x", padx=10)
 
         cfgf = tk.LabelFrame(f, text=" Cuándo avisarte ", bg=BG, fg=MUTED, padx=10, pady=8)
@@ -371,8 +405,11 @@ class HistoryWindow(tk.Toplevel):
 
     # ---- programas
     def _build_programs(self, f):
-        self._note(f, "Programas que han usado Internet desde este equipo. «Nuevo» = apareció "
-                      "en los últimos 7 días.").pack(fill="x", padx=10, pady=8)
+        top = tk.Frame(f, bg=BG)
+        top.pack(fill="x", padx=8, pady=(8, 0))
+        self._button(top, "Exportar CSV", lambda: self._export_tab("programs"), side="right")
+        self._note(top, "Programas que han usado Internet desde este equipo. «Nuevo» = apareció "
+                        "en los últimos 7 días.").pack(side="left", padx=2, pady=4)
         box, self.prog_tree = self._tree(f, (("n", "Programa"), ("r", "Ruta"), ("f", "Primera vez"),
                                              ("l", "Última vez"), ("c", "Conexiones"),
                                              ("s", "Estado")), (150, 380, 110, 110, 90, 120),
@@ -392,8 +429,11 @@ class HistoryWindow(tk.Toplevel):
 
     # ---- páginas
     def _build_pages(self, f):
-        self._note(f, "Informes de privacidad de las páginas que cargaste con el proxy encendido. "
-                      "Doble clic para abrir el informe.").pack(fill="x", padx=10, pady=8)
+        top = tk.Frame(f, bg=BG)
+        top.pack(fill="x", padx=8, pady=(8, 0))
+        self._button(top, "Exportar CSV", lambda: self._export_tab("pages"), side="right")
+        self._note(top, "Informes de privacidad de las páginas que cargaste con el proxy encendido. "
+                        "Doble clic para abrir el informe.").pack(side="left", padx=2, pady=4)
         box, self.page_tree = self._tree(f, (("t", "Hora"), ("s", "Sitio"), ("g", "Nota"),
                                              ("a", "Rastreadores activos"), ("b", "Bloqueados"),
                                              ("w", "Peso")), (120, 380, 70, 150, 100, 100),

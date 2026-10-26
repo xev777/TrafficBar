@@ -403,6 +403,26 @@ leidas = list(csv.reader(open(rcsv, encoding="utf-8-sig", newline="")))
 check("CSV: se escribe con cabecera y el nombre peligroso queda neutralizado",
       n == len(filas) and leidas[0][0] == "tipo" and any(r[1].startswith("'=HYPERLINK") for r in leidas[1:]))
 
+# ---------------- exportación CSV por pestaña (con y sin datos de navegación)
+he.add_conn(t0 + 100, "chrome.exe", "93.184.216.34", 443, "example.com")
+he.add_alert("new", "Nuevo programa", "x.exe se conectó a 1.2.3.4:443. Ruta: C:\\Users\\yo\\x.exe", "x.exe")
+he.add_program("x.exe|c:\\x.exe", "x.exe", "C:\\Users\\yo\\x.exe")
+he.add_report({"main": "banco.example", "grade": "B", "score": 80, "n_hosts": 3, "trackers": 2,
+               "active_trackers": 1, "protected": 1, "bytes": 1000, "time": t0 + 200})
+def _vuelca(par): return " ".join(str(c) for fila in par[1] for c in fila) + " " + " ".join(par[0])
+cc, cp = exportar.filas_conexiones(he.conns(t0, t0 + 1000), False), exportar.filas_conexiones(he.conns(t0, t0 + 1000), True)
+aa, ap = exportar.filas_alertas(he.alerts(), False), exportar.filas_alertas(he.alerts(), True)
+pp, pq = exportar.filas_programas(he.programs(), False), exportar.filas_programas(he.programs(), True)
+gg, gp = exportar.filas_paginas(he.reports(), False), exportar.filas_paginas(he.reports(), True)
+check("CSV por pestaña: completo incluye destino, IP, detalle, ruta y sitio",
+      "example.com" in _vuelca(cc) and "93.184.216.34" in _vuelca(cc) and "1.2.3.4" in _vuelca(aa)
+      and "C:\\Users\\yo" in _vuelca(pp) and "banco.example" in _vuelca(gg))
+check("CSV por pestaña: el modo privado NO contiene destinos, IP, detalles, rutas ni sitios",
+      not any(x in _vuelca(cp) + _vuelca(ap) + _vuelca(pq) + _vuelca(gp)
+              for x in ("example.com", "93.184.216.34", "1.2.3.4", "C:\\Users", "banco.example")))
+check("CSV por pestaña: cada fila tiene tantas columnas como la cabecera",
+      all(len(f) == len(par[0]) for par in (cc, cp, aa, ap, pp, pq, gg, gp) for f in par[1]) and bool(cc[1] and aa[1] and pp[1] and gg[1]))
+
 # ---------------- comprobación manual de versión
 import actualizar
 import json as _json
