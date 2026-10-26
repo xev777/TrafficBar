@@ -423,6 +423,13 @@ check("CSV por pestaña: el modo privado NO contiene destinos, IP, detalles, rut
 check("CSV por pestaña: cada fila tiene tantas columnas como la cabecera",
       all(len(f) == len(par[0]) for par in (cc, cp, aa, ap, pp, pq, gg, gp) for f in par[1]) and bool(cc[1] and aa[1] and pp[1] and gg[1]))
 
+import re as _re
+import history_view
+_nombres = [history_view.HistoryWindow._nombre_csv(p) for p in
+            ("Línea de tiempo", "Conexiones", "Alertas", "Programas", "Páginas visitadas")]
+check("CSV: cada pestaña propone un nombre de archivo distinto, con fecha y sin caracteres raros",
+      len(set(_nombres)) == 5 and all(_re.fullmatch(r"trafficbar-[a-z0-9-]+-\d{4}-\d{2}-\d{2}\.csv", n) for n in _nombres))
+
 # ---------------- comprobación manual de versión
 import actualizar
 import json as _json

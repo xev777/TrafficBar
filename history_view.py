@@ -124,6 +124,15 @@ class HistoryWindow(tk.Toplevel):
         except OSError as e:
             messagebox.showerror("TrafficBar", str(e), parent=self)
 
+    @staticmethod
+    def _nombre_csv(pestana):
+        """trafficbar-<pestaña en el idioma actual>-<fecha>.csv: cada pestaña genera un archivo distinto."""
+        import re
+        import unicodedata
+        base = unicodedata.normalize("NFKD", tr(pestana)).encode("ascii", "ignore").decode()
+        slug = re.sub(r"[^a-z0-9]+", "-", base.lower()).strip("-") or "datos"
+        return f"trafficbar-{slug}-{time.strftime('%Y-%m-%d')}.csv"
+
     def _preguntar_privado(self):
         """True = omitir sitios y destinos; False = incluirlos; None = cancelar."""
         return messagebox.askyesnocancel(
@@ -140,7 +149,7 @@ class HistoryWindow(tk.Toplevel):
         until = int(time.time())
         since = until - RANGES[self.range_name.get()][0]
         self._guardar_csv(("tipo", "nombre", "bajada_MB", "subida_MB"),
-                          exportar.filas_uso(self.hist, since, until), "trafficbar-trafico.csv")
+                          exportar.filas_uso(self.hist, since, until), self._nombre_csv("Línea de tiempo"))
 
     def _export_tab(self, tab):
         import exportar
@@ -157,7 +166,8 @@ class HistoryWindow(tk.Toplevel):
             cab, filas = exportar.filas_programas(self.hist.programs(), priv)
         else:
             cab, filas = exportar.filas_paginas(self.hist.reports(), priv)
-        self._guardar_csv(cab, filas, f"trafficbar-{tab}.csv")
+        self._guardar_csv(cab, filas, self._nombre_csv(
+            {"conns": "Conexiones", "alerts": "Alertas", "programs": "Programas", "pages": "Páginas visitadas"}[tab]))
 
     # ---- línea de tiempo
     def _build_timeline(self, f):
