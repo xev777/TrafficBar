@@ -34,12 +34,13 @@ cómo cargan las páginas, quién te rastrea y qué programas usan tu red. Funci
 | **Apps de la Tienda** | WhatsApp, Microsoft Store y otras apps de la Tienda funcionan con el proxy encendido (exención de loopback de Windows, con un clic). |
 | **Detector de telemetría** | Avisa cuando un programa de tu PC contacta con un servidor de telemetría/diagnóstico conocido (fallos, estadísticas de uso). Lo registra en su propio historial — nunca lo bloquea. |
 | **Cuota mensual** | Define tu plan y el día de corte: consumo, proyección y avisos al 80 % / 100 %. |
-| **Historial y alertas** | Consumo por minuto y por programa, programas nuevos, subidas sostenidas. Solo en tu PC. |
+| **Historial y alertas** | Consumo por minuto y por programa, programas nuevos (haz clic en el aviso para bloquearlo), subidas sostenidas. Solo en tu PC. |
+| **Exportar a CSV** | Cada pestaña del Historial exporta sus datos; las que llevan sitios o rutas preguntan si omitirlos. |
 | **Buscador** | Hasta 5 motores, una tecla para buscar en todos. |
 | **Idiomas** | Inglés (por defecto) y español incluidos; carga más packs de idioma (`.json`). |
 | **Barra** | Grande / mediana / contraída, imán en los bordes, icono en la bandeja, tooltips, multipantalla. |
 
-Todo se ejecuta en tu equipo. **Sin telemetría, sin cuentas, sin actualizaciones automáticas.**
+Todo se ejecuta en tu equipo. **Sin telemetría, sin cuentas, sin actualizaciones automáticas** (la opción *Buscar actualizaciones* del menú del clic derecho solo actúa cuando la pulsas).
 
 ## Firma de código
 

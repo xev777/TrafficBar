@@ -34,12 +34,13 @@ how pages load, who tracks you, and which programs use your network. Works with 
 | **Store apps compatibility** | WhatsApp / Microsoft Store and other Store apps work with the proxy on (Windows loopback exemption, one click). |
 | **Telemetry detector** | Flags when a program on your PC contacts a known telemetry/diagnostics server (crash reports, usage stats). Logs it in its own history — never blocks it. |
 | **Monthly data quota** | Set your plan and billing day: usage, projection and warnings at 80 % / 100 %. |
-| **History and alerts** | Per-minute usage, per-program usage, new programs, sustained uploads. Kept on your PC only. |
+| **History and alerts** | Per-minute usage, per-program usage, new programs (click the notification to block one), sustained uploads. Kept on your PC only. |
+| **Export to CSV** | Every History tab exports its data; tabs with sites or paths ask whether to omit them. |
 | **Search bar** | Up to 5 search engines, one keystroke to search in all. |
 | **Languages** | English (default) and Spanish included; load more language packs (`.json`). |
 | **Bar** | Large / medium / collapsed, magnetic docking, tray icon, tooltips, multi-monitor aware. |
 
-Everything runs locally. **No telemetry, no accounts, no automatic updates.**
+Everything runs locally. **No telemetry, no accounts, no automatic updates** (an optional *Check for updates* in the right-click menu only runs when you click it).
 
 ## Code signing
 

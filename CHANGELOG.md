@@ -1,6 +1,6 @@
 # Changelog / Registro de cambios
 
-## Unreleased (1.1.0)
+## 1.1.0 — 2026-10-26
 
 **New / Novedades**
 - **Export to CSV in every History tab** (Traffic, Connections, Alerts, Programs, Pages). The tabs that contain sites or paths ask
