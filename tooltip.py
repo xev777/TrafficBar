@@ -15,6 +15,12 @@ BG_TIP, FG_TIP, BORDER = "#0f1a2b", "#e8eef7", "#3fa9f5"
 DELAY_MS = 500
 
 
+def aplicar_colores(fondo, texto, borde):
+    """Los globos de ayuda siguen el tema de color elegido para la barra."""
+    global BG_TIP, FG_TIP, BORDER
+    BG_TIP, FG_TIP, BORDER = fondo, texto, borde
+
+
 class Tooltip:
     def __init__(self, widget, text=None, area=None):
         self.widget, self.text, self.area = widget, text, area

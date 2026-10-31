@@ -494,6 +494,12 @@ def _panel(escala, tema="dark", op=100):
 p1, p2, p3 = _panel(1.0), _panel(0.8), _panel(0.65)
 a1, a2, a3 = p1.cv.winfo_reqwidth(), p2.cv.winfo_reqwidth(), p3.cv.winfo_reqwidth()
 h1, h3 = p1.cv.winfo_reqheight(), p3.cv.winfo_reqheight()
+import tooltip as _tt
+app.set_theme("light")
+_luz = (_tt.BG_TIP, _tt.FG_TIP, _tt.BORDER)
+app.set_theme("dark")
+check("Los globos de ayuda (tooltips) siguen el tema: claro cambia sus colores y oscuro los restaura",
+      _luz == ("#ffffff", "#1c2430", "#2b6cb0") and (_tt.BG_TIP, _tt.FG_TIP, _tt.BORDER) == ("#0f1a2b", "#e8eef7", "#3fa9f5"))
 check("Panel de carga: 100 % / 80 % / 65 % son cada vez más estrechos y bajos",
       a1 > a2 > a3 and h1 > h3 and abs(a2 - 0.8 * a1) < 4 and abs(a3 - 0.65 * a1) < 4)
 check("Panel de carga: las zonas de clic se ajustan a la escala (el botón «Cortar todo» sigue donde se dibuja)",

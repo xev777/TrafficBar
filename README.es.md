@@ -38,7 +38,7 @@ cómo cargan las páginas, quién te rastrea y qué programas usan tu red. Funci
 | **Exportar a CSV** | Cada pestaña del Historial exporta sus datos; las que llevan sitios o rutas preguntan si omitirlos. |
 | **Buscador** | Hasta 5 motores, una tecla para buscar en todos. |
 | **Idiomas** | Inglés (por defecto) y español incluidos; carga más packs de idioma (`.json`). |
-| **Barra** | Grande / mediana / contraída, imán en los bordes, icono en la bandeja, tooltips, multipantalla. |
+| **Barra** | Grande / mediana / contraída, imán en los bordes, icono en la bandeja, tooltips, multipantalla. Cuatro temas de color (oscuro, gris discreto, claro, alto contraste) y opacidad y tamaño del panel de carga ajustables, para que sea discreta. |
 
 Todo se ejecuta en tu equipo. **Sin telemetría, sin cuentas, sin actualizaciones automáticas** (la opción *Buscar actualizaciones* del menú del clic derecho solo actúa cuando la pulsas).
 

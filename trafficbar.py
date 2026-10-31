@@ -32,6 +32,7 @@ from i18n import tr
 from history import History
 from safety import (force_paint, paint_soon, clean_text, http_url, in_protected_folder, is_reparse, known_folder,
                     monitor_work_area, system_exe, under, valid_host)
+import tooltip
 from tooltip import tip
 from proxy_core import Proxy as _CoreProxy, filter_html as _filter_html
 from loadtrack import Loader
@@ -613,6 +614,7 @@ def aplicar_tema(nombre):
     p = temas.paleta(nombre)
     BG, FG, ACC, BTN = p["bg"], p["fg"], p["acc"], p["btn"]
     FIELD, MUTED, ACCBTN, ACCFG = p["field"], p["muted"], p["accbtn"], p["accfg"]
+    tooltip.aplicar_colores(p["field"], p["fg"], p["acc"])
 LOAD_W = 210   # ancho de la barra de carga en la barra flotante
 MINI_W = 70    # ancho del mini progreso en la barra contraída
 COMPACT_LOAD_W = 120   # ancho de la barra de carga en el tamaño compacto

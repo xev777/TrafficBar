@@ -1,6 +1,6 @@
 # Changelog / Registro de cambios
 
-## Unreleased (1.2.0)
+## 1.2.0 — 2026-11-01
 
 **New / Novedades**
 - **Bar color themes** (right-click menu): Dark (default), Quiet (gray), Light and High contrast; text contrast is checked (WCAG AA).
@@ -10,6 +10,7 @@
   **Opacidad de la barra** (100 / 85 / 70 / 55 / 40 %): una barra más discreta que se vuelve opaca al pasar el ratón. Nunca menos del 30 %.
 - **Page-load panel**: adjustable size (100 / 80 / 65 %), and it follows the bar theme and opacity. / **Panel de carga de sitios**:
   tamaño ajustable (100 / 80 / 65 %) y sigue el tema y la opacidad de la barra.
+- **Tooltips follow the theme**; the page-load panel has tighter rows. / **Los globos de ayuda siguen el tema**; el panel de carga tiene las filas más juntas.
 - Dependency updates (PyInstaller 6.22.3, hooks 2026.9, setuptools 84.2.1, packaging 26.3). / Dependencias actualizadas.
 
 ## 1.1.0 — 2026-10-26

@@ -38,7 +38,7 @@ how pages load, who tracks you, and which programs use your network. Works with 
 | **Export to CSV** | Every History tab exports its data; tabs with sites or paths ask whether to omit them. |
 | **Search bar** | Up to 5 search engines, one keystroke to search in all. |
 | **Languages** | English (default) and Spanish included; load more language packs (`.json`). |
-| **Bar** | Large / medium / collapsed, magnetic docking, tray icon, tooltips, multi-monitor aware. |
+| **Bar** | Large / medium / collapsed, magnetic docking, tray icon, tooltips, multi-monitor aware. Four color themes (dark, quiet gray, light, high contrast) and adjustable opacity and page-load panel size, to keep it discreet. |
 
 Everything runs locally. **No telemetry, no accounts, no automatic updates** (an optional *Check for updates* in the right-click menu only runs when you click it).
 
