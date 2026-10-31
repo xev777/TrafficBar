@@ -714,6 +714,9 @@
     "Alto contraste": "High contrast",
     "Tema de color de la barra": "Bar color theme",
     "Opacidad de la barra (opaca al pasar el ratón)": "Bar opacity (opaque on mouse-over)",
-    "100 % (opaca)": "100 % (opaque)"
+    "100 % (opaca)": "100 % (opaque)",
+    "Pequeño (80 %)": "Small (80 %)",
+    "Mínimo (65 %)": "Minimum (65 %)",
+    "Tamaño del panel de carga de sitios": "Size of the page-load panel"
   }
 }

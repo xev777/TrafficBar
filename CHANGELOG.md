@@ -8,6 +8,8 @@
   contraste del texto está comprobado (WCAG AA).
 - **Bar opacity** (100 / 85 / 70 / 55 / 40 %): a more discreet bar that becomes opaque when the mouse is over it. Never below 30 %. /
   **Opacidad de la barra** (100 / 85 / 70 / 55 / 40 %): una barra más discreta que se vuelve opaca al pasar el ratón. Nunca menos del 30 %.
+- **Page-load panel**: adjustable size (100 / 80 / 65 %), and it follows the bar theme and opacity. / **Panel de carga de sitios**:
+  tamaño ajustable (100 / 80 / 65 %) y sigue el tema y la opacidad de la barra.
 - Dependency updates (PyInstaller 6.22.3, hooks 2026.9, setuptools 84.2.1, packaging 26.3). / Dependencias actualizadas.
 
 ## 1.1.0 — 2026-10-26

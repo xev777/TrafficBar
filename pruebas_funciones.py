@@ -478,6 +478,43 @@ cerca = round(float(app.attributes("-alpha")), 2)
 app.set_opacity(100)
 check("Opacidad: 55 % en reposo, 100 % al pasar el ratón, y se guarda", reposo == 0.55 and cerca == 1.0 and _tb.CFG["bar_opacity"] == 100)
 
+# ---------------- panel de carga: tamaño, tema y opacidad
+import load_panel as _lp
+class _FakeLoader:
+    last = (0.5, 2, 6)
+    def rows(self):
+        return [{"id": i, "host": f"cdn{i}.example.com", "state": "active" if i < 2 else "done", "kind": "tunnel",
+                 "bytes": 1000 * i, "start": time.time() - 3, "end": 0} for i in range(6)]
+    def cut_item(self, i): pass
+def _panel(escala, tema="dark", op=100):
+    p = _lp.LoadPanel(app, _FakeLoader(), lambda h: False, lambda: None, lambda w: True,
+                      theme=tema, scale=escala, opacity=op)
+    app.update_idletasks()
+    return p
+p1, p2, p3 = _panel(1.0), _panel(0.8), _panel(0.65)
+a1, a2, a3 = p1.cv.winfo_reqwidth(), p2.cv.winfo_reqwidth(), p3.cv.winfo_reqwidth()
+h1, h3 = p1.cv.winfo_reqheight(), p3.cv.winfo_reqheight()
+check("Panel de carga: 100 % / 80 % / 65 % son cada vez más estrechos y bajos",
+      a1 > a2 > a3 and h1 > h3 and abs(a2 - 0.8 * a1) < 4 and abs(a3 - 0.65 * a1) < 4)
+check("Panel de carga: las zonas de clic se ajustan a la escala (el botón «Cortar todo» sigue donde se dibuja)",
+      all(0 <= z[0] < a3 + 2 and z[2] <= a3 + 8 for z in p3.hits) and any(z[4] == "cut_all" for z in p3.hits)
+      and any(z[4] == "close" for z in p3.hits))
+check("Panel de carga: el tooltip de una fila funciona también reducido",
+      p3._tip_at(40, p3.row_boxes[0][0] + 2) is not None)
+p1.destroy(); p2.destroy(); p3.destroy()
+pl = _panel(1.0, "light", 55)
+check("Panel de carga: usa el tema elegido y su opacidad en reposo",
+      pl.cget("bg") == "#ffffff" and round(float(pl.attributes("-alpha")), 2) == 0.55)
+pl._set_alpha(True)
+check("Panel de carga: con el ratón encima es opaco", round(float(pl.attributes("-alpha")), 2) == 1.0)
+pl.destroy()
+check("Panel de carga: escalas inválidas del config.json vuelven a 100 %",
+      _tm.escala_panel_valida(0.5) == 1.0 and _tm.escala_panel_valida("x") == 1.0 and _tm.escala_panel_valida(None) == 1.0
+      and _tm.escala_panel_valida(0.8) == 0.8 and _tb.sanitize_cfg({"panel_scale": {"a": 1}})["panel_scale"] == 1.0)
+app.set_panel_scale(0.65)
+check("La barra guarda el tamaño del panel y cierra el panel abierto", _tb.CFG["panel_scale"] == 0.65 and app.panel is None)
+app.set_panel_scale(1.0)
+
 # ---------------- exportación CSV por pestaña (con y sin datos de navegación)
 he.add_conn(t0 + 100, "chrome.exe", "93.184.216.34", 443, "example.com")
 he.add_alert("new", "Nuevo programa", "x.exe se conectó a 1.2.3.4:443. Ruta: C:\\Users\\yo\\x.exe", "x.exe")

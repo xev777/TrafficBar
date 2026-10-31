@@ -6,16 +6,21 @@ módulo; la barra se reconstruye para estrenarlos. Los contrastes de texto está
 TEMAS = {
     # nombre: (etiqueta del menú, paleta)
     "dark": ("Oscuro (por defecto)", dict(bg="#1b2a41", fg="#e8eef7", acc="#3fa9f5", btn="#27405f",
-                                            field="#0f1a2b", muted="#8ea3bd", accbtn="#1f6fa8", accfg="#ffffff")),
+                                            field="#0f1a2b", muted="#8ea3bd", accbtn="#1f6fa8", accfg="#ffffff",
+                                            pbg="#14202f", row="#182638", track="#1d4a70", bartxt="#ffffff")),
     "quiet": ("Discreto (gris)", dict(bg="#2b2b2b", fg="#d0d0d0", acc="#9a9a9a", btn="#3a3a3a",
-                                      field="#202020", muted="#9a9a9a", accbtn="#555555", accfg="#101010")),
+                                      field="#202020", muted="#9a9a9a", accbtn="#555555", accfg="#101010",
+                                      pbg="#232323", row="#2b2b2b", track="#4a4a4a", bartxt="#ffffff")),
     "light": ("Claro", dict(bg="#f2f4f7", fg="#1c2430", acc="#2b6cb0", btn="#d9dfe7",
-                            field="#ffffff", muted="#4f5d6e", accbtn="#2b6cb0", accfg="#ffffff")),
+                            field="#ffffff", muted="#4f5d6e", accbtn="#2b6cb0", accfg="#ffffff",
+                            pbg="#ffffff", row="#eef1f5", track="#bcd3ee", bartxt="#1c2430")),
     "contrast": ("Alto contraste", dict(bg="#000000", fg="#ffffff", acc="#ffd400", btn="#1f1f1f",
-                                        field="#000000", muted="#cfcfcf", accbtn="#0050c8", accfg="#000000")),
+                                        field="#000000", muted="#cfcfcf", accbtn="#0050c8", accfg="#000000",
+                                        pbg="#000000", row="#141414", track="#003a8c", bartxt="#ffffff")),
 }
 DEFECTO = "dark"
 OPACIDADES = (100, 85, 70, 55, 40)      # % de opacidad ofrecidos en el menú
+ESCALAS_PANEL = ((1.0, "Normal (100 %)"), (0.8, "Pequeño (80 %)"), (0.65, "Mínimo (65 %)"))
 OPACIDAD_MIN = 30                        # nunca más transparente: la barra debe seguir siendo localizable
 
 
@@ -31,6 +36,13 @@ def opacidad_valida(v):
     if isinstance(v, bool) or not isinstance(v, (int, float)) or v != v:
         return 100
     return int(min(100, max(OPACIDAD_MIN, v)))
+
+
+def escala_panel_valida(v):
+    """Solo se admiten las escalas del menú; cualquier otro valor del config.json vuelve a 100 %."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return 1.0
+    return next((e for e, _ in ESCALAS_PANEL if abs(e - v) < 1e-6), 1.0)
 
 
 def luminancia(h):

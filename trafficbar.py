@@ -130,6 +130,7 @@ DEFAULT_CFG = {
     "bar_collapsed": False,       # la barra está contraída (píldora)
     "bar_theme": "dark",          # tema de color de la barra: dark, quiet, light, contrast
     "bar_opacity": 100,           # opacidad de la barra en reposo (30–100 %); al pasar el ratón vuelve a 100
+    "panel_scale": 1.0,           # tamaño del panel de carga de sitios: 1.0 · 0.8 · 0.65
     "bar_auto": False,            # contraer sola al alejar el ratón; abrir al acercarlo
     "bar_x": None,                # última posición de la barra (None = centrada arriba)
     "bar_y": None,
@@ -172,6 +173,8 @@ def sanitize_cfg(cfg):
             out[k] = temas.nombre_valido(v)
         elif k == "bar_opacity":
             out[k] = temas.opacidad_valida(v)
+        elif k == "panel_scale":
+            out[k] = temas.escala_panel_valida(v)
         elif k == "bar_dock":
             out[k] = v if v in ("top", "bottom") else None
         elif k in ("bar_x", "bar_y"):
@@ -1168,11 +1171,25 @@ class Floating(tk.Tk):
         self.full.config(bg=BG)
         self.mini.config(bg=BG)
         self._rebuild_ui()
+        self._close_panel()
+
+    def _close_panel(self):
+        """Cierra el panel de carga (se vuelve a abrir solo con el tema, la escala y la opacidad nuevos)."""
+        p = getattr(self, "panel", None)
+        if p is not None and p.winfo_exists():
+            p.destroy()
+        self.panel = None
+
+    def set_panel_scale(self, k):
+        CFG["panel_scale"] = temas.escala_panel_valida(k)
+        save_cfg(CFG)
+        self._close_panel()
 
     def set_opacity(self, pct):
         """Opacidad de la barra en reposo. Al pasar el ratón vuelve a ser opaca para poder usarla."""
         CFG["bar_opacity"] = temas.opacidad_valida(pct)
         save_cfg(CFG)
+        self._close_panel()
         self._apply_opacity(hover=self._pointer_inside())
 
     def _apply_opacity(self, hover=False):
@@ -1447,6 +1464,13 @@ class Floating(tk.Tk):
             om.add_radiobutton(label="100 % (opaca)" if v == 100 else f"{v} %", variable=self.opacity_var,
                                value=v, command=lambda x=v: self.set_opacity(x))
         m.add_cascade(label="Opacidad de la barra (opaca al pasar el ratón)", menu=om)
+        pm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
+                     font=("Segoe UI", 10))
+        self.panel_scale_var = tk.DoubleVar(value=temas.escala_panel_valida(CFG.get("panel_scale", 1.0)))
+        for k, etiqueta in temas.ESCALAS_PANEL:
+            pm.add_radiobutton(label=etiqueta, variable=self.panel_scale_var, value=k,
+                               command=lambda x=k: self.set_panel_scale(x))
+        m.add_cascade(label="Tamaño del panel de carga de sitios", menu=pm)
         lm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
                      font=("Segoe UI", 10))
         self.lang_var = tk.StringVar(value=i18n.idioma())
@@ -1555,7 +1579,8 @@ class Floating(tk.Tk):
     def open_panel(self, auto=False):
         from load_panel import LoadPanel
         self.panel = LoadPanel(self, LOADER, is_blocked_host, self.cut_loading, self._panel_setting,
-                               lambda: self.last_report, self.win_report)
+                               lambda: self.last_report, self.win_report, theme=CFG.get("bar_theme"),
+                               scale=CFG.get("panel_scale", 1.0), opacity=CFG.get("bar_opacity", 100))
         self.panel.auto = auto
 
     # ---- informe de privacidad
