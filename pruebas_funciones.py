@@ -445,6 +445,39 @@ check("Bloquear desde el aviso: tras confirmar se bloquea esa ruta durante los m
       _llam["bloq"] == [("C:\\Apps\\nuevo.exe", 60)])
 _pg.es_admin, _pg.preguntar, _pg.bloquear, _mb.showinfo, _mb.showerror = _o
 
+# ---------------- temas de color y opacidad de la barra
+import temas as _tm
+import trafficbar as _tb
+check("Temas: hay 4 y el texto tiene contraste suficiente (WCAG ≥ 4.5) en todos",
+      len(_tm.TEMAS) == 4 and all(
+          _tm.contraste(p["fg"], p["bg"]) >= 4.5 and _tm.contraste(p["fg"], p["btn"]) >= 4.5
+          and _tm.contraste(p["fg"], p["field"]) >= 4.5 and _tm.contraste(p["muted"], p["bg"]) >= 4.5
+          and _tm.contraste("#ffffff", p["accbtn"]) >= 4.5
+          for _, p in _tm.TEMAS.values()))
+check("Temas: los botones de acento y el texto sobre el color de acento se leen (claro, discreto, alto contraste)",
+      all(_tm.contraste(_tm.paleta(k)["accfg"], _tm.paleta(k)["acc"]) >= 4.5 for k in ("quiet", "light", "contrast")))
+check("Temas y opacidad: valores raros en config.json se corrigen",
+      _tm.nombre_valido("hack") == "dark" and _tm.nombre_valido(None) == "dark"
+      and _tm.opacidad_valida(5) == 30 and _tm.opacidad_valida(500) == 100
+      and _tm.opacidad_valida("x") == 100 and _tm.opacidad_valida(float("nan")) == 100 and _tm.opacidad_valida(True) == 100
+      and _tb.sanitize_cfg({"bar_theme": {"x": 1}, "bar_opacity": -3})["bar_theme"] == "dark"
+      and _tb.sanitize_cfg({"bar_opacity": -3})["bar_opacity"] == 30)
+app.set_theme("light")
+check("Tema claro: la barra cambia de color y se reconstruye sin perder botones",
+      app.cget("bg") == "#f2f4f7" and app.outer.cget("bg") == "#f2f4f7" and _tb.CFG["bar_theme"] == "light"
+      and app._btns["traffic"].cget("bg") == _tb.ACCBTN and len(app._btns) >= 5)
+app.set_theme("contrast")
+check("Tema alto contraste: la rejilla de ventanas nuevas usa la paleta del tema", _tb.BG == "#000000" and _tb.ACC == "#ffd400" and _tb.ACCFG == "#000000")
+app.set_theme("dark")
+check("Volver al tema oscuro restaura los colores originales", _tb.BG == "#1b2a41" and app.cget("bg") == "#1b2a41")
+app.set_opacity(55)
+app._apply_opacity(hover=False)
+reposo = round(float(app.attributes("-alpha")), 2)
+app._apply_opacity(hover=True)
+cerca = round(float(app.attributes("-alpha")), 2)
+app.set_opacity(100)
+check("Opacidad: 55 % en reposo, 100 % al pasar el ratón, y se guarda", reposo == 0.55 and cerca == 1.0 and _tb.CFG["bar_opacity"] == 100)
+
 # ---------------- exportación CSV por pestaña (con y sin datos de navegación)
 he.add_conn(t0 + 100, "chrome.exe", "93.184.216.34", 443, "example.com")
 he.add_alert("new", "Nuevo programa", "x.exe se conectó a 1.2.3.4:443. Ruta: C:\\Users\\yo\\x.exe", "x.exe")

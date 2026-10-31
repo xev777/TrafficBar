@@ -1,5 +1,15 @@
 # Changelog / Registro de cambios
 
+## Unreleased (1.2.0)
+
+**New / Novedades**
+- **Bar color themes** (right-click menu): Dark (default), Quiet (gray), Light and High contrast; text contrast is checked (WCAG AA).
+  / **Temas de color de la barra** (menú del clic derecho): Oscuro (por defecto), Discreto (gris), Claro y Alto contraste; el
+  contraste del texto está comprobado (WCAG AA).
+- **Bar opacity** (100 / 85 / 70 / 55 / 40 %): a more discreet bar that becomes opaque when the mouse is over it. Never below 30 %. /
+  **Opacidad de la barra** (100 / 85 / 70 / 55 / 40 %): una barra más discreta que se vuelve opaca al pasar el ratón. Nunca menos del 30 %.
+- Dependency updates (PyInstaller 6.22.3, hooks 2026.9, setuptools 84.2.1, packaging 26.3). / Dependencias actualizadas.
+
 ## 1.1.0 — 2026-10-26
 
 **New / Novedades**

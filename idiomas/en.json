@@ -707,6 +707,13 @@
     "Este archivo contiene los sitios que visitas y datos de tu equipo, en texto sin protección. No lo dejes en carpetas sincronizadas ni lo compartas sin revisarlo.\n\n¿Omitir sitios, destinos, rutas y detalles?\n\nSí = omitir · No = incluir todo · Cancelar = no exportar": "This file contains the sites you visit and data about your PC, as unprotected text. Do not leave it in synced folders or share it without reviewing it.\n\nOmit sites, destinations, paths and details?\n\nYes = omit · No = include everything · Cancel = do not export",
     "Haz clic aquí para bloquearlo.": "Click here to block it.",
     "Bloquear requiere permisos de administrador. Abre 📡 Tráfico y acepta reiniciar como administrador.": "Blocking requires administrator rights. Open 📡 Traffic and accept restarting as administrator.",
-    "«{n}» ya no tiene acceso a Internet. Puedes deshacerlo en 🚫 Bloqueados.": "“{n}” no longer has Internet access. You can undo it in 🚫 Blocked."
+    "«{n}» ya no tiene acceso a Internet. Puedes deshacerlo en 🚫 Bloqueados.": "“{n}” no longer has Internet access. You can undo it in 🚫 Blocked.",
+    "Oscuro (por defecto)": "Dark (default)",
+    "Discreto (gris)": "Quiet (gray)",
+    "Claro": "Light",
+    "Alto contraste": "High contrast",
+    "Tema de color de la barra": "Bar color theme",
+    "Opacidad de la barra (opaca al pasar el ratón)": "Bar opacity (opaque on mouse-over)",
+    "100 % (opaca)": "100 % (opaque)"
   }
 }

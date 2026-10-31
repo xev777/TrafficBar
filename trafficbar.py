@@ -26,6 +26,7 @@ import blocklists
 import cuota
 import i18n
 import programas
+import temas
 import tienda
 from i18n import tr
 from history import History
@@ -127,6 +128,8 @@ DEFAULT_CFG = {
     "bar_magnet": True,           # imán: la barra se pega a los bordes de la pantalla
     "bar_dock": None,             # anclada arriba ("top") o abajo ("bottom") del monitor
     "bar_collapsed": False,       # la barra está contraída (píldora)
+    "bar_theme": "dark",          # tema de color de la barra: dark, quiet, light, contrast
+    "bar_opacity": 100,           # opacidad de la barra en reposo (30–100 %); al pasar el ratón vuelve a 100
     "bar_auto": False,            # contraer sola al alejar el ratón; abrir al acercarlo
     "bar_x": None,                # última posición de la barra (None = centrada arriba)
     "bar_y": None,
@@ -165,6 +168,10 @@ def sanitize_cfg(cfg):
             out[k] = int(_num(v, 0, 0, MAX_ENGINES - 1))
         elif k == "bar_size":
             out[k] = v if v in ("large", "compact") else default
+        elif k == "bar_theme":
+            out[k] = temas.nombre_valido(v)
+        elif k == "bar_opacity":
+            out[k] = temas.opacidad_valida(v)
         elif k == "bar_dock":
             out[k] = v if v in ("top", "bottom") else None
         elif k in ("bar_x", "bar_y"):
@@ -594,6 +601,15 @@ normalize_url = http_url      # solo http/https (ver safety.py)
 
 # --------------------------------------------------------------------------- GUI
 BG, FG, ACC, BTN = "#1b2a41", "#e8eef7", "#3fa9f5", "#27405f"
+FIELD, MUTED, ACCBTN, ACCFG = "#0f1a2b", "#8ea3bd", "#1f6fa8", "white"   # los cambia el tema elegido (temas.py)
+
+
+def aplicar_tema(nombre):
+    """Copia la paleta del tema a las variables del módulo; las ventanas que se creen después la usan."""
+    global BG, FG, ACC, BTN, FIELD, MUTED, ACCBTN, ACCFG
+    p = temas.paleta(nombre)
+    BG, FG, ACC, BTN = p["bg"], p["fg"], p["acc"], p["btn"]
+    FIELD, MUTED, ACCBTN, ACCFG = p["field"], p["muted"], p["accbtn"], p["accfg"]
 LOAD_W = 210   # ancho de la barra de carga en la barra flotante
 MINI_W = 70    # ancho del mini progreso en la barra contraída
 COMPACT_LOAD_W = 120   # ancho de la barra de carga en el tamaño compacto
@@ -621,6 +637,7 @@ class Floating(tk.Tk):
         self.title(APP)
         self.overrideredirect(True)
         self.attributes("-topmost", True)
+        aplicar_tema(CFG.get("bar_theme"))
         self.configure(bg=BG)
         self.proxy = Proxy()
         self.prev_proxy = get_system_proxy()
@@ -638,7 +655,7 @@ class Floating(tk.Tk):
         self.last_report = None
         self._was_loading = False
 
-        outer = tk.Frame(self, bg=BG, highlightbackground=ACC, highlightthickness=1)
+        outer = self.outer = tk.Frame(self, bg=BG, highlightbackground=ACC, highlightthickness=1)
         outer.pack()
         self.grip = tk.Label(outer, text="◉ TrafficBar", bg=BG, fg=ACC, font=("Segoe UI", 9, "bold"),
                              cursor="fleur")
@@ -672,6 +689,7 @@ class Floating(tk.Tk):
             x, y = (self.winfo_screenwidth() - w) // 2, 8
         self.geometry(f"+{int(x)}+{int(y)}")
         self.set_collapsed(bool(CFG.get("bar_collapsed")), persist=False)   # también ajusta a la pantalla
+        self._bind_opacity()
         self.protocol("WM_DELETE_WINDOW", self.hide_bar)
         self.after(250, self._autohide_tick)
         if "--segundo-plano" in sys.argv:      # arranque con Windows: solo el icono de la bandeja
@@ -907,9 +925,9 @@ class Floating(tk.Tk):
 
     def _btn(self, parent, text, cmd, accent=False, key=None):
         cp = self.compact
-        b = tk.Button(parent, text=text, command=cmd, bg="#1f6fa8" if accent else BTN, fg=FG,
+        b = tk.Button(parent, text=text, command=cmd, bg=ACCBTN if accent else BTN, fg="white" if accent else FG,
                       relief="flat", bd=0, font=("Segoe UI", 8 if cp else 9),
-                      activebackground=ACC, activeforeground="white",
+                      activebackground=ACC, activeforeground=ACCFG,
                       padx=5 if cp else 8, pady=1 if cp else 2, cursor="hand2")
         b.pack(side="left", padx=1 if cp else 2, pady=2 if cp else 4)
         self._btns[key or text] = b
@@ -951,7 +969,7 @@ class Floating(tk.Tk):
         if self.proxy.server:
             self.power.config(bg="#2e8b57")
         # barra de carga: clic = desplegar/plegar el panel; ✂ = cortar todo al instante
-        self.load_bar = tk.Canvas(bar, width=self.load_w, height=self.load_h, bg="#0f1a2b",
+        self.load_bar = tk.Canvas(bar, width=self.load_w, height=self.load_h, bg=FIELD,
                                   highlightthickness=1, highlightbackground=BTN, cursor="hand2")
         self.load_bar.pack(side="left", padx=(3 if cp else 4, 0), pady=2 if cp else 4)
         self.load_bar.bind("<Button-1>", lambda e: self.toggle_panel())
@@ -979,10 +997,10 @@ class Floating(tk.Tk):
         if cp:      # compacto: las seis herramientas caben en un solo menú
             self.tools_btn = tk.Menubutton(bar, text="🧰▾", bg=BTN, fg=FG, relief="flat", bd=0,
                                            font=("Segoe UI", fs), padx=6, cursor="hand2",
-                                           activebackground=ACC, activeforeground="white")
+                                           activebackground=ACC, activeforeground=ACCFG)
             self.tools_btn.pack(side="left", padx=1, pady=2)
             m = tk.Menu(self.tools_btn, tearoff=0, bg=BG, fg=FG, activebackground=ACC,
-                        activeforeground="white", font=("Segoe UI", 10),
+                        activeforeground=ACCFG, font=("Segoe UI", 10),
                         postcommand=lambda: setattr(self, "_menu_until", time.time() + 8))
             for _short, label, cmd in tools:
                 m.add_command(label=label, command=cmd)
@@ -1138,6 +1156,45 @@ class Floating(tk.Tk):
         self._add_static_tips()
         self.set_collapsed(self.collapsed, persist=False)
 
+    def set_theme(self, nombre):
+        """Cambia el tema de color de la barra y la reconstruye en caliente (las ventanas nuevas lo usan al abrirse)."""
+        nombre = temas.nombre_valido(nombre)
+        CFG["bar_theme"] = nombre
+        save_cfg(CFG)
+        aplicar_tema(nombre)
+        self.configure(bg=BG)
+        self.outer.config(bg=BG, highlightbackground=ACC)
+        self.grip.config(bg=BG, fg=ACC)
+        self.full.config(bg=BG)
+        self.mini.config(bg=BG)
+        self._rebuild_ui()
+
+    def set_opacity(self, pct):
+        """Opacidad de la barra en reposo. Al pasar el ratón vuelve a ser opaca para poder usarla."""
+        CFG["bar_opacity"] = temas.opacidad_valida(pct)
+        save_cfg(CFG)
+        self._apply_opacity(hover=self._pointer_inside())
+
+    def _apply_opacity(self, hover=False):
+        pct = 100 if hover else temas.opacidad_valida(CFG.get("bar_opacity", 100))
+        try:
+            self.attributes("-alpha", pct / 100)
+        except tk.TclError:
+            pass
+
+    def _pointer_inside(self):
+        try:
+            x, y = self.winfo_pointerxy()
+            return (self.winfo_rootx() <= x < self.winfo_rootx() + self.winfo_width()
+                    and self.winfo_rooty() <= y < self.winfo_rooty() + self.winfo_height())
+        except tk.TclError:
+            return False
+
+    def _bind_opacity(self):
+        self.bind("<Enter>", lambda e: self._apply_opacity(hover=True), add="+")
+        self.bind("<Leave>", lambda e: self.after(350, lambda: self._apply_opacity(hover=self._pointer_inside())), add="+")
+        self._apply_opacity()
+
     def set_language(self, code):
         if not i18n.activar(code, _idiomas_dirs()):
             messagebox.showerror(APP, tr("No se pudo cargar ese idioma."), parent=self)
@@ -1233,10 +1290,10 @@ class Floating(tk.Tk):
 
     def _build_mini(self):
         m = self.mini
-        self.mini_dot = tk.Label(m, text="⏻", bg=BG, fg="#6d84a3", font=("Segoe UI", 10, "bold"),
+        self.mini_dot = tk.Label(m, text="⏻", bg=BG, fg=MUTED, font=("Segoe UI", 10, "bold"),
                                  cursor="hand2")
         self.mini_dot.pack(side="left", padx=(0, 4))
-        self.mini_bar = tk.Canvas(m, width=MINI_W, height=12, bg="#0f1a2b", highlightthickness=0,
+        self.mini_bar = tk.Canvas(m, width=MINI_W, height=12, bg=FIELD, highlightthickness=0,
                                   cursor="hand2")
         self.mini_bar.pack(side="left", pady=6)
         self.mini_badge = tk.Label(m, text="", bg=BG, fg="#ffa94d", font=("Segoe UI", 9, "bold"),
@@ -1344,11 +1401,11 @@ class Floating(tk.Tk):
                                fill=ACC if active else "#3fb97f")
         else:
             c.create_line(0, 6, w, 6, fill="#27405f")
-        self.mini_dot.config(fg="#3fb97f" if self.proxy.server else "#6d84a3")
+        self.mini_dot.config(fg="#3fb97f" if self.proxy.server else MUTED)
         self.mini_badge.config(text=f"🔔{self._unseen}" if self._unseen else "")
 
     def _bar_menu(self, event):
-        m = tk.Menu(self, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground="white",
+        m = tk.Menu(self, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
                     font=("Segoe UI", 10))
         m.add_command(label="Expandir barra" if self.collapsed else "Contraer barra",
                       command=self.toggle_collapse)
@@ -1368,7 +1425,7 @@ class Floating(tk.Tk):
         m.add_checkbutton(label="Iniciar con Windows (en la bandeja)", variable=self.start_var,
                           command=self.toggle_autostart,
                           state="normal" if autostart_command() else "disabled")
-        sm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground="white",
+        sm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
                      font=("Segoe UI", 10))
         self.scale_var = tk.DoubleVar(value=self.ui_scale)
         for label, val in (("Normal (100 %)", 1.0), ("Pequeño (85 %)", 0.85),
@@ -1376,7 +1433,21 @@ class Floating(tk.Tk):
             sm.add_radiobutton(label=label, variable=self.scale_var, value=val,
                                command=lambda v=val: self.set_ui_scale(v))
         m.add_cascade(label="Tamaño de textos y ventanas", menu=sm)
-        lm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground="white",
+        tm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
+                     font=("Segoe UI", 10))
+        self.theme_var = tk.StringVar(value=temas.nombre_valido(CFG.get("bar_theme")))
+        for clave, (etiqueta, _p) in temas.TEMAS.items():
+            tm.add_radiobutton(label=etiqueta, variable=self.theme_var, value=clave,
+                               command=lambda c=clave: self.set_theme(c))
+        m.add_cascade(label="Tema de color de la barra", menu=tm)
+        om = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
+                     font=("Segoe UI", 10))
+        self.opacity_var = tk.IntVar(value=temas.opacidad_valida(CFG.get("bar_opacity", 100)))
+        for v in temas.OPACIDADES:
+            om.add_radiobutton(label="100 % (opaca)" if v == 100 else f"{v} %", variable=self.opacity_var,
+                               value=v, command=lambda x=v: self.set_opacity(x))
+        m.add_cascade(label="Opacidad de la barra (opaca al pasar el ratón)", menu=om)
+        lm = tk.Menu(m, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
                      font=("Segoe UI", 10))
         self.lang_var = tk.StringVar(value=i18n.idioma())
         lm.add_radiobutton(label="Español (original)", variable=self.lang_var, value="es",
@@ -1456,7 +1527,7 @@ class Floating(tk.Tk):
             c.create_text(w / 2, h / 2, text=label, fill="white",
                           font=("Segoe UI", 8 if self.compact else 9, "bold"))
         else:
-            c.create_text(w / 2, h / 2, fill="#6d84a3", font=("Segoe UI", 8),
+            c.create_text(w / 2, h / 2, fill=MUTED, font=("Segoe UI", 8),
                           text="▾ carga: reposo" if self.compact else "▾ carga de sitios: en reposo")
 
         self._update_mini(frac, active, total)
@@ -1576,7 +1647,7 @@ class Floating(tk.Tk):
 
     # ---- buscador con hasta 5 motores
     def _build_search(self, bar):
-        box = tk.Frame(bar, bg="#0f1a2b", highlightbackground=BTN, highlightthickness=1)
+        box = tk.Frame(bar, bg=FIELD, highlightbackground=BTN, highlightthickness=1)
         box.pack(side="left", padx=(6 if self.compact else 8, 2), pady=2 if self.compact else 4)
         cp = self.compact
         self.search_hint = tr("Buscar…" if cp else "Buscar en la web…")
@@ -1585,8 +1656,8 @@ class Floating(tk.Tk):
         elif self.search_var.get() in ("Buscar…", "Buscar en la web…"):
             self.search_var.set(self.search_hint)    # solo el texto de ayuda cambia de un tamaño a otro
         self.search_entry = tk.Entry(box, textvariable=self.search_var, width=14 if cp else 22,
-                                     bg="#0f1a2b", insertbackground=FG, relief="flat",
-                                     fg="#6d84a3" if self.search_var.get() == self.search_hint else FG,
+                                     bg=FIELD, insertbackground=FG, relief="flat",
+                                     fg=MUTED if self.search_var.get() == self.search_hint else FG,
                                      font=("Segoe UI", 9 if cp else 10))
         self.search_entry.pack(side="left", padx=(6, 0), ipady=2)
         self.search_entry.bind("<Button-1>", lambda e: (self.focus_force(), self.search_entry.focus_set()))
@@ -1597,9 +1668,9 @@ class Floating(tk.Tk):
         self.eng_var = tk.IntVar(value=CFG["engine"])
         self.eng_btn = tk.Menubutton(box, text="", bg=BTN, fg=FG, relief="flat", bd=0,
                                      font=("Segoe UI", 8 if cp else 9, "bold"), padx=5 if cp else 8,
-                                     cursor="hand2", activebackground=ACC, activeforeground="white")
+                                     cursor="hand2", activebackground=ACC, activeforeground=ACCFG)
         self.eng_btn.pack(side="left", fill="y")
-        self.search_btn = tk.Button(box, text="🔎", command=self.do_search, bg=ACC, fg="white",
+        self.search_btn = tk.Button(box, text="🔎", command=self.do_search, bg=ACC, fg=ACCFG,
                                     relief="flat", bd=0, padx=8, cursor="hand2",
                                     activebackground="#5cb8ff")
         self.search_btn.pack(side="left", fill="y")
@@ -1613,13 +1684,13 @@ class Floating(tk.Tk):
     def _search_focus_out(self, _e=None):
         if not self.search_var.get().strip():
             self.search_var.set(self.search_hint)
-            self.search_entry.config(fg="#6d84a3")
+            self.search_entry.config(fg=MUTED)
 
     def _build_engine_menu(self):
         engines = CFG["engines"]
         self.eng_btn.config(text=engines[CFG["engine"]]["name"] + " ▾")
         m = tk.Menu(self.eng_btn, tearoff=0, bg=BG, fg=FG, activebackground=ACC,
-                    activeforeground="white", font=("Segoe UI", 10),
+                    activeforeground=ACCFG, font=("Segoe UI", 10),
                     postcommand=lambda: setattr(self, "_menu_until", time.time() + 8))
         self.eng_var.set(CFG["engine"])
         for i, e in enumerate(engines):
@@ -1657,8 +1728,8 @@ class Floating(tk.Tk):
         rows = []
         engines = CFG["engines"] + [{"name": "", "url": ""}] * (MAX_ENGINES - len(CFG["engines"]))
         for i, e in enumerate(engines[:MAX_ENGINES]):
-            n = tk.Entry(grid, width=14, bg="#0f1a2b", fg=FG, insertbackground=FG, relief="flat")
-            u = tk.Entry(grid, width=64, bg="#0f1a2b", fg=FG, insertbackground=FG, relief="flat")
+            n = tk.Entry(grid, width=14, bg=FIELD, fg=FG, insertbackground=FG, relief="flat")
+            u = tk.Entry(grid, width=64, bg=FIELD, fg=FG, insertbackground=FG, relief="flat")
             n.insert(0, e["name"])
             u.insert(0, e["url"])
             n.grid(row=i, column=0, padx=(0, 8), pady=4, ipady=3)
@@ -1693,7 +1764,7 @@ class Floating(tk.Tk):
             t.destroy()
         row = tk.Frame(t, bg=BG)
         row.pack(pady=6)
-        tk.Button(row, text="Guardar", command=save, bg=ACC, fg="white", relief="flat",
+        tk.Button(row, text="Guardar", command=save, bg=ACC, fg=ACCFG, relief="flat",
                   padx=16).pack(side="left", padx=4)
         tk.Button(row, text="Restaurar por defecto", command=restore, bg=BTN, fg=FG,
                   relief="flat", padx=12).pack(side="left", padx=4)
@@ -1800,7 +1871,7 @@ class Floating(tk.Tk):
         return t
 
     def _text(self, parent, **kw):
-        s = scrolledtext.ScrolledText(parent, bg="#0f1a2b", fg=FG, insertbackground=FG,
+        s = scrolledtext.ScrolledText(parent, bg=FIELD, fg=FG, insertbackground=FG,
                                       font=("Consolas", 9), relief="flat", **kw)
         s.pack(fill="both", expand=True, padx=8, pady=8)
         return s
@@ -1934,7 +2005,7 @@ class Floating(tk.Tk):
                            activebackground=BG, activeforeground=FG,
                            anchor="w").pack(fill="x", padx=10)
         tk.Label(t, text="* Solo en páginas HTTP. El contenido HTTPS va cifrado: ahí se "
-                 "filtra únicamente por dominio.", bg=BG, fg="#9fb3cc", wraplength=560,
+                 "filtra únicamente por dominio.", bg=BG, fg=MUTED, wraplength=560,
                  justify="left").pack(padx=10, pady=4)
 
         # ---- listas de bloqueo
@@ -1951,7 +2022,7 @@ class Floating(tk.Tk):
             tk.Checkbutton(r, text=text, variable=lvars[cfgkey], bg=BG, fg=FG, selectcolor=BTN,
                            activebackground=BG, activeforeground=FG, anchor="w").pack(side="left")
             if src:
-                status[src] = tk.Label(r, text=self._lists_status(src), bg=BG, fg="#8ea3bd",
+                status[src] = tk.Label(r, text=self._lists_status(src), bg=BG, fg=MUTED,
                                        font=("Segoe UI", 8))
                 status[src].pack(side="right")
         auto_var = tk.BooleanVar(value=CFG.get("lists_auto", False))
@@ -1961,7 +2032,7 @@ class Floating(tk.Tk):
         tk.Label(lf, text="Bloquear publicidad mejora la privacidad y reduce conexiones, pero el ahorro "
                  "de datos suele ser pequeño (el peso está sobre todo en imágenes y vídeo de la "
                  "propia página). Activa «Solo medir» unos días para ver cuánto ahorrarías TÚ.",
-                 bg=BG, fg="#8ea3bd", anchor="w", wraplength=540, justify="left",
+                 bg=BG, fg=MUTED, anchor="w", wraplength=540, justify="left",
                  font=("Segoe UI", 8)).pack(fill="x", pady=(4, 0))
         msg = tk.Label(lf, text="", bg=BG, fg="#ffd166", anchor="w", wraplength=540, justify="left")
 
@@ -1987,7 +2058,7 @@ class Floating(tk.Tk):
             btn.config(state="disabled", text="Descargando…")
             msg.config(text="")
             self.update_lists(done)
-        btn = tk.Button(lf, text="⟳ Actualizar listas ahora", command=update, bg=ACC, fg="white",
+        btn = tk.Button(lf, text="⟳ Actualizar listas ahora", command=update, bg=ACC, fg=ACCFG,
                         relief="flat", padx=12)
         btn.pack(anchor="w", pady=(4, 2))
         msg.pack(fill="x")
@@ -2019,7 +2090,7 @@ class Floating(tk.Tk):
             ALLOWLIST = {a for a in allow if valid_host(a)}
             reload_lists()
             t.destroy()
-        tk.Button(t, text="Guardar", command=save, bg=ACC, fg="white", relief="flat",
+        tk.Button(t, text="Guardar", command=save, bg=ACC, fg=ACCFG, relief="flat",
                   padx=14).pack(pady=(0, 8))
 
     def win_clean(self):
@@ -2046,7 +2117,7 @@ class Floating(tk.Tk):
             freed = sum(remove_path(p, d) for p, d in sel)
             messagebox.showinfo(APP, f"Liberado: {human(freed)}", parent=t)
             t.destroy()
-        tk.Button(t, text="Limpiar", command=go, bg=ACC, fg="white", relief="flat",
+        tk.Button(t, text="Limpiar", command=go, bg=ACC, fg=ACCFG, relief="flat",
                   padx=14).pack(pady=10)
 
     def win_sitemap(self):
@@ -2089,7 +2160,7 @@ class Floating(tk.Tk):
             box.insert("end", "Cargando…")
             threading.Thread(target=work, args=(url,), daemon=True).start()
         ent.bind("<Return>", lambda e: go())
-        tk.Button(row, text="Mapear", command=go, bg=ACC, fg="white", relief="flat").pack(
+        tk.Button(row, text="Mapear", command=go, bg=ACC, fg=ACCFG, relief="flat").pack(
             side="left", padx=6)
 
     def _run_stream(self, box, cmd):
@@ -2125,9 +2196,9 @@ class Floating(tk.Tk):
             else:
                 box.delete("1.0", "end")
                 box.insert("end", "Escribe un nombre de sitio o una IP válidos.")
-        tk.Button(row, text="Ping", bg=ACC, fg="white", relief="flat",
+        tk.Button(row, text="Ping", bg=ACC, fg=ACCFG, relief="flat",
                   command=lambda: run([system_exe("ping"), "-n", "4"])).pack(side="left", padx=4)
-        tk.Button(row, text="Traceroute", bg=ACC, fg="white", relief="flat",
+        tk.Button(row, text="Traceroute", bg=ACC, fg=ACCFG, relief="flat",
                   command=lambda: run([system_exe("tracert"), "-d"])).pack(side="left")
 
     def win_siteinfo(self):
@@ -2170,7 +2241,7 @@ class Floating(tk.Tk):
             box.insert("end", "Consultando…")
             threading.Thread(target=work, args=(url,), daemon=True).start()
         ent.bind("<Return>", lambda e: go())
-        tk.Button(row, text="Consultar", command=go, bg=ACC, fg="white", relief="flat").pack(
+        tk.Button(row, text="Consultar", command=go, bg=ACC, fg=ACCFG, relief="flat").pack(
             side="left", padx=6)
 
 
