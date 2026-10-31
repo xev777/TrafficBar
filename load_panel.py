@@ -3,6 +3,7 @@ import time
 import tkinter as tk
 from tkinter import font as tkfont
 
+from i18n import tr
 from tooltip import tip
 import temas
 
@@ -47,10 +48,11 @@ class LoadPanel(tk.Toplevel):
         self.closed_by_user = False
         self.hits = []
         compact = getattr(app, "compact", False)
-        self.row_h = 24 if compact else 30          # tamaño compacto: filas más bajas
+        self.row_h = 22 if compact else 26       # filas más juntas; el tamaño compacto las baja más
         self.max_rows = 8 if compact else 12
         if self.k < 1:
             self.max_rows = min(self.max_rows, 8 if self.k >= 0.8 else 6)
+            self.row_h = min(self.row_h, 22 if self.k >= 0.8 else 20)
         self.overrideredirect(True)
         self.attributes("-topmost", True)
         self.cv = tk.Canvas(self, width=int(W * self.k), height=200, bg=BG, highlightthickness=1,
@@ -164,7 +166,7 @@ class LoadPanel(tk.Toplevel):
                       text=f"{n_done} completos · {active} en curso · "
                            f"{n_blk} bloqueados · {n_cut} cortados")
         auto_on = self.on_setting("get")
-        self._link(W - 16, y + 18, ("☑" if auto_on else "☐") + "  Desplegar solo al cargar",
+        self._link(W - 16, y + 18, ("☑" if auto_on else "☐") + "  " + tr("Desplegar solo al cargar"),
                    "auto", anchor="e")
         self._link(W - 250, y + 18, "✕ cerrar", "close", anchor="e")
 
@@ -195,7 +197,8 @@ class LoadPanel(tk.Toplevel):
                       text=human(r["bytes"]) if r["bytes"] else "·")
         # mini barra
         x0, x1 = 566, 640
-        y0, y1 = y + 10, y + self.row_h - 10
+        m = (self.row_h - 10) // 2                   # la mini barra mide siempre 10 px de alto
+        y0, y1 = y + m, y + self.row_h - m
         c.create_rectangle(x0, y0, x1, y1, fill=FIELD, width=0)
         if st == "active":
             c.create_rectangle(x0, y0, x1, y1, fill=TRACK, width=0)
