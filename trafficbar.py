@@ -1162,7 +1162,7 @@ class Floating(tk.Tk):
         self.set_collapsed(self.collapsed, persist=False)
 
     def set_theme(self, nombre):
-        """Cambia el tema de color de la barra y la reconstruye en caliente (las ventanas nuevas lo usan al abrirse)."""
+        """Cambia el tema de color de la barra y la reconstruye en caliente (las ventanas abiertas se reabren con el tema nuevo)."""
         nombre = temas.nombre_valido(nombre)
         CFG["bar_theme"] = nombre
         save_cfg(CFG)
@@ -1174,6 +1174,25 @@ class Floating(tk.Tk):
         self.mini.config(bg=BG)
         self._rebuild_ui()
         self._close_panel()
+        self._reabrir_ventanas()
+
+    def _reabrir_ventanas(self):
+        """Las ventanas abiertas toman los colores al crearse: se cierran y se vuelven a abrir en el mismo sitio."""
+        for attr, abrir in (("history_win", self.win_history), ("telemetry_win", self.win_telemetria),
+                            ("_quota", self.win_quota), ("_tienda", self.win_tienda),
+                            ("_blocked", self.win_blocked), ("_help", self.win_help), ("traffic", self.win_traffic)):
+            w = getattr(self, attr, None)
+            if w is None or not w.winfo_exists():
+                continue
+            try:
+                geo = w.geometry()
+                w.destroy() if attr != "traffic" else w._close()
+                abrir()
+                nueva = getattr(self, attr, None)
+                if nueva is not None and nueva.winfo_exists():
+                    nueva.geometry(geo)
+            except tk.TclError:
+                pass
 
     @property
     def theme_name(self):

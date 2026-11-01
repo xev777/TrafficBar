@@ -604,6 +604,12 @@ for _t in ("light", "contrast"):
 check("Temas de ventanas: Historial, Cuota, Bloqueados y Ayuda estrenan el tema al abrirse", all(all(v) for v in _tm_vals.values()), str(_tm_vals))
 _tb.CFG["bar_theme"] = "dark"
 
+app.set_theme("dark"); app.win_quota(); app.update(); _q0 = app._quota
+app.set_theme("light"); app.update()
+check("Cambiar de tema con una ventana abierta: se reabre con los colores nuevos",
+      app._quota is not _q0 and app._quota.winfo_exists() and app._quota.cget("bg") == _tm.paleta("light")["bg"])
+app._quota.destroy(); app.set_theme("dark")
+
 app.quit_app(); shutil.rmtree(tmp, ignore_errors=True)
 print(f"\nRESULTADO: {ok} bien, {fail} fallos")
 sys.stdout.flush()
