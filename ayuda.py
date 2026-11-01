@@ -9,7 +9,7 @@ import webbrowser
 from i18n import tr
 from safety import monitor_work_area
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 import temas
 
 

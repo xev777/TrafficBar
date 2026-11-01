@@ -1,6 +1,6 @@
 # Changelog / Registro de cambios
 
-## Unreleased
+## 1.2.1 — 2026-11-02
 
 **New / Novedades**
 - **Themes in every window**: History, Privacy report, Traffic monitor, Telemetry, Monthly quota, Blocked programs, Microsoft Store
