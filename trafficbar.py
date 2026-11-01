@@ -1175,6 +1175,11 @@ class Floating(tk.Tk):
         self._rebuild_ui()
         self._close_panel()
 
+    @property
+    def theme_name(self):
+        """Tema de color elegido: las ventanas (historial, informe, monitor…) lo toman al abrirse."""
+        return CFG.get("bar_theme")
+
     def _close_panel(self):
         """Cierra el panel de carga (se vuelve a abrir solo con el tema, la escala y la opacidad nuevos)."""
         p = getattr(self, "panel", None)

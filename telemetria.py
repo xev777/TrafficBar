@@ -12,7 +12,15 @@ from tkinter import messagebox, ttk
 from safety import bring_to_front
 from tooltip import tip
 
-BG, PANEL, FG, MUTED, ACC = "#14202f", "#1b2a41", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (la ventana los toma al abrirse)."""
+    globals().update(temas.ventana(nombre, "A"))
+
+
+aplicar_paleta(None)
 
 
 def fmt(ts):
@@ -21,6 +29,7 @@ def fmt(ts):
 
 class TelemetryWindow(tk.Toplevel):
     def __init__(self, master, hist, refresh_badge):
+        aplicar_paleta(getattr(master, "theme_name", None))
         super().__init__(master, bg=BG)
         self.hist, self.refresh_badge = hist, refresh_badge
         self.title("TrafficBar – Telemetría detectada")
@@ -47,14 +56,14 @@ class TelemetryWindow(tk.Toplevel):
         ).pack(fill="x", padx=12, pady=(12, 6))
         s = ttk.Style(self)
         s.theme_use("clam")
-        s.configure("Tel.Treeview", background="#0f1a2b", fieldbackground="#0f1a2b", foreground=FG,
+        s.configure("Tel.Treeview", background=FIELD, fieldbackground=FIELD, foreground=FG,
                     rowheight=int(26 * getattr(self.master, "ui_scale", 1.0)), borderwidth=0,
                     font=("Segoe UI", 9))
         s.configure("Tel.Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat",
                     font=("Segoe UI", 9, "bold"))
-        s.map("Tel.Treeview", background=[("selected", "#27405f")])
-        s.configure("Vertical.TScrollbar", background="#27405f", troughcolor="#0f1a2b",
-                    bordercolor="#0f1a2b", arrowcolor=FG, lightcolor="#27405f", darkcolor="#27405f")
+        s.map("Tel.Treeview", background=[("selected", BTN)])
+        s.configure("Vertical.TScrollbar", background=BTN, troughcolor=FIELD,
+                    bordercolor=FIELD, arrowcolor=FG, lightcolor=BTN, darkcolor=BTN)
         box = tk.Frame(self, bg=BG)
         box.pack(fill="both", expand=True, padx=10, pady=(0, 4))
         self.tree = ttk.Treeview(box, columns=("t", "p", "m"), show="headings", style="Tel.Treeview")
@@ -75,7 +84,7 @@ class TelemetryWindow(tk.Toplevel):
 
     def _button(self, parent, text, cmd):
         b = tk.Button(parent, text=text, command=cmd, relief="flat", bd=0, padx=12, pady=4,
-                      bg="#27405f", fg="white", cursor="hand2", activebackground=ACC,
+                      bg=BTN, fg=FG, cursor="hand2", activebackground=ACC,
                       font=("Segoe UI", 9))
         b.pack(side="left")
         return b

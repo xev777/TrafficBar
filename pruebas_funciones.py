@@ -573,6 +573,37 @@ check("Actualizar: comprobar() funciona con una respuesta simulada y descarta la
 def _falla(r, t): raise OSError("sin red")
 check("Actualizar: sin red devuelve None sin lanzar excepciones", actualizar.comprobar("1.0.3", abrir=_falla) is None)
 
+# ---------------- temas en las demás ventanas
+check("Temas de ventanas: en el tema oscuro los colores semánticos no cambian (nada se mueve para quien no usa temas)",
+      _tm.ventana("dark")["WARN"] == "#ffd166" and _tm.ventana("dark")["UP_C"] == "#ffa94d"
+      and _tm.ventana("dark")["BG"] == "#14202f" and _tm.ventana("dark", "B")["BG"] == "#1b2a41")
+check("Temas de ventanas: en todos los temas, los colores de texto y de datos se leen sobre el campo (≥ 3)",
+      all(_tm.contraste(v[k], v["FIELD"]) >= 3.0 for n in _tm.TEMAS for v in (_tm.ventana(n),)
+          for k in ("DOWN_C", "UP_C", "WARN", "HOT", "OKC", "DIM", "FG", "MUTED")))
+check("Temas de ventanas: ajustar() deja igual lo que ya se lee y corrige lo que no",
+      _tm.ajustar("#ffd166", "#0f1a2b") == "#ffd166" and _tm.contraste(_tm.ajustar("#ffd166", "#ffffff"), "#ffffff") >= 4.5)
+_tm_vals = {}
+for _a in ('history_win', '_quota', '_blocked', '_help'):
+    _w = getattr(app, _a, None)
+    if _w is not None and _w.winfo_exists():
+        _w.destroy()
+for _t in ("light", "contrast"):
+    _tb.CFG["bar_theme"] = _t
+    app.win_history(); app.win_quota(); app.win_blocked(); app.win_help(); app._open_report_dict(
+        {"main": "example.com", "time": 0, "grade": "C", "score": 55, "verdict": "x", "n_hosts": 1, "n_third": 1, "protected": 0,
+         "bytes": 10, "seconds": 1.0, "count": {"ads": 1, "analytics": 0, "social": 0}, "hosts": [], "main_host": "example.com"})
+    app.update()
+    _bg = _tm.paleta(_t)
+    _tm_vals[_t] = (app.history_win.cget("bg") == _bg["pbg"], app._quota.cget("bg") == _bg["bg"],
+                    app._blocked.cget("bg") == _bg["bg"], app._help.cget("bg") == _bg["bg"])
+    for _w in (app.history_win, app._quota, app._blocked, app._help):
+        _w.destroy()
+    for _w in app.winfo_children():
+        if _w.winfo_class() == "Toplevel" and "Informe" in str(_w.title()):
+            _w.destroy()
+check("Temas de ventanas: Historial, Cuota, Bloqueados y Ayuda estrenan el tema al abrirse", all(all(v) for v in _tm_vals.values()), str(_tm_vals))
+_tb.CFG["bar_theme"] = "dark"
+
 app.quit_app(); shutil.rmtree(tmp, ignore_errors=True)
 print(f"\nRESULTADO: {ok} bien, {fail} fallos")
 sys.stdout.flush()

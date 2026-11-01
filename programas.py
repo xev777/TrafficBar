@@ -24,7 +24,15 @@ PROTEGIDOS = {
     "msmpeng.exe", "sihost.exe", "ctfmon.exe", "fontdrvhost.exe", "trafficbar.exe", "python.exe",
     "pythonw.exe", "wudfhost.exe", "audiodg.exe", "runtimebroker.exe", "yogadns.exe",
 }
-BG, PANEL, FG, MUTED, ACC = "#1b2a41", "#0f1a2b", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (la ventana los toma al abrirse)."""
+    globals().update(temas.ventana(nombre, "B"))
+
+
+aplicar_paleta(None)
 _estado = {"ruta": None}
 
 
@@ -165,6 +173,7 @@ def quitar_todos():
 # ---------------------------------------------------------------- interfaz
 def preguntar(parent, nombre, ruta):
     """Ventana de confirmación. Devuelve None (cancelar) o los minutos (0 = hasta que lo desbloquees)."""
+    aplicar_paleta(getattr(parent, "theme_name", None))
     ok, motivo = validar(ruta)
     if not ok:
         messagebox.showinfo("TrafficBar", motivo, parent=parent)
@@ -195,7 +204,7 @@ def preguntar(parent, nombre, ruta):
         t.destroy()
     tk.Button(row, text="Bloquear", command=go, bg="#b93c3c", fg="white", relief="flat", padx=16,
               cursor="hand2").pack(side="right")
-    tk.Button(row, text="Cancelar", command=t.destroy, bg="#27405f", fg="white", relief="flat",
+    tk.Button(row, text="Cancelar", command=t.destroy, bg=BTN, fg=FG, relief="flat",
               padx=12, cursor="hand2").pack(side="right", padx=8)
     t.update_idletasks()
     x = parent.winfo_rootx() + max(0, (parent.winfo_width() - t.winfo_reqwidth()) // 2)
@@ -208,6 +217,7 @@ def preguntar(parent, nombre, ruta):
 
 class VentanaBloqueados(tk.Toplevel):
     def __init__(self, app):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.app = app
         self.title("TrafficBar – Programas bloqueados")
@@ -219,7 +229,7 @@ class VentanaBloqueados(tk.Toplevel):
         st = ttk.Style(self)
         st.configure("B.Treeview", background=PANEL, fieldbackground=PANEL, foreground=FG,
                      rowheight=int(26 * getattr(app, "ui_scale", 1.0)), borderwidth=0)
-        st.configure("B.Treeview.Heading", background="#0f1a2b", foreground=MUTED, relief="flat")
+        st.configure("B.Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat")
         cols = ("nombre", "hasta", "ruta")
         self.tree = ttk.Treeview(self, columns=cols, show="headings", style="B.Treeview", height=8)
         for c, txt, w in (("nombre", "Programa", 150), ("hasta", "Hasta", 140), ("ruta", "Ruta", 420)):
@@ -228,11 +238,11 @@ class VentanaBloqueados(tk.Toplevel):
         self.tree.pack(fill="both", expand=True, padx=12, pady=6)
         row = tk.Frame(self, bg=BG)
         row.pack(fill="x", padx=12, pady=(0, 10))
-        tk.Button(row, text="✅ Desbloquear seleccionado", command=self.unblock, bg=ACC, fg="white",
+        tk.Button(row, text="✅ Desbloquear seleccionado", command=self.unblock, bg=ACCBTN, fg=ACCFG,
                   relief="flat", padx=12, cursor="hand2").pack(side="left")
-        tk.Button(row, text="Cerrar", command=self.destroy, bg="#27405f", fg="white", relief="flat",
+        tk.Button(row, text="Cerrar", command=self.destroy, bg=BTN, fg=FG, relief="flat",
                   padx=12, cursor="hand2").pack(side="right")
-        self.msg = tk.Label(self, text="", bg=BG, fg="#ffa94d", anchor="w")
+        self.msg = tk.Label(self, text="", bg=BG, fg=UP_C, anchor="w")
         self.msg.pack(fill="x", padx=12, pady=(0, 8))
         self.refresh()
 

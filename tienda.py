@@ -24,7 +24,15 @@ from safety import clean_text, powershell_exe, system_exe
 PFN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.\-]{1,100}_[a-z0-9]{13}$")
 PFN_BUSCA = re.compile(r"([A-Za-z0-9][A-Za-z0-9.\-]{1,100}_[a-z0-9]{13})")
 RECOMENDADAS = ("WhatsAppDesktop", "Microsoft.WindowsStore", "WindowsStore")
-BG, PANEL, FG, MUTED, ACC = "#1b2a41", "#0f1a2b", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (la ventana los toma al abrirse)."""
+    globals().update(temas.ventana(nombre, "B"))
+
+
+aplicar_paleta(None)
 _cfg = {"estado": None, "pedido": None, "resultado": None}
 
 
@@ -188,6 +196,7 @@ def ejecutar_pedido():
 # ------------------------------------------------------------------------------ interfaz
 class VentanaTienda(tk.Toplevel):
     def __init__(self, app):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.app = app
         self.title("TrafficBar – Compatibilidad con apps de la Tienda")
@@ -209,12 +218,12 @@ class VentanaTienda(tk.Toplevel):
         e = tk.Entry(top, textvariable=self.q, width=28, bg=PANEL, fg=FG, insertbackground=FG, relief="flat")
         e.pack(side="left", padx=6, ipady=3)
         self.q.trace_add("write", lambda *a: self._pintar())
-        tk.Button(top, text="Marcar las recomendadas", command=self.recomendadas, bg="#27405f", fg="white",
+        tk.Button(top, text="Marcar las recomendadas", command=self.recomendadas, bg=BTN, fg=FG,
                   relief="flat", cursor="hand2", padx=8).pack(side="left", padx=6)
         st = ttk.Style(self)
         st.configure("T.Treeview", background=PANEL, fieldbackground=PANEL, foreground=FG, borderwidth=0,
                      rowheight=int(24 * getattr(app, "ui_scale", 1.0)))
-        st.configure("T.Treeview.Heading", background="#0f1a2b", foreground=MUTED, relief="flat")
+        st.configure("T.Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat")
         cols = ("marca", "app", "estado")
         self.tree = ttk.Treeview(self, columns=cols, show="headings", style="T.Treeview", selectmode="browse")
         for c, t, w, a in (("marca", "", 40, "center"), ("app", "App", 400, "w"), ("estado", "Estado", 190, "w")):
@@ -224,12 +233,12 @@ class VentanaTienda(tk.Toplevel):
         self.tree.bind("<Button-1>", self._clic)
         row = tk.Frame(self, bg=BG)
         row.pack(fill="x", padx=14, pady=(0, 6))
-        self.btn = tk.Button(row, text="✅ Aplicar cambios", command=self.aplicar, bg=ACC, fg="white",
+        self.btn = tk.Button(row, text="✅ Aplicar cambios", command=self.aplicar, bg=ACCBTN, fg=ACCFG,
                              relief="flat", cursor="hand2", padx=12, state="disabled")
         self.btn.pack(side="left")
-        tk.Button(row, text="Cerrar", command=self.destroy, bg="#27405f", fg="white", relief="flat",
+        tk.Button(row, text="Cerrar", command=self.destroy, bg=BTN, fg=FG, relief="flat",
                   cursor="hand2", padx=12).pack(side="right")
-        self.msg = tk.Label(self, text="Buscando las apps instaladas…", bg=BG, fg="#ffa94d", anchor="w",
+        self.msg = tk.Label(self, text="Buscando las apps instaladas…", bg=BG, fg=UP_C, anchor="w",
                             wraplength=560, justify="left")
         self.msg.pack(fill="x", padx=14, pady=(0, 10))
         threading.Thread(target=self._cargar, daemon=True).start()

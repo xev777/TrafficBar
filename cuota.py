@@ -7,7 +7,15 @@ from tkinter import ttk
 from i18n import tr
 
 GIB = 1024 ** 3
-BG, PANEL, FG, MUTED, ACC = "#1b2a41", "#0f1a2b", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (la ventana los toma al abrirse)."""
+    globals().update(temas.ventana(nombre, "B"))
+
+
+aplicar_paleta(None)
 UMBRALES = (80, 100)
 
 
@@ -61,6 +69,7 @@ def human(n):
 
 class QuotaWindow(tk.Toplevel):
     def __init__(self, app, hist, cfg, save_cfg):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.app, self.hist, self.cfg, self.save_cfg = app, hist, cfg, save_cfg
         self.title("TrafficBar – Cuota mensual")
@@ -80,13 +89,13 @@ class QuotaWindow(tk.Toplevel):
         tk.Label(f, text=" GB al mes · el ciclo empieza el día ", bg=BG, fg=FG).pack(side="left")
         self.day = tk.StringVar(value=str(self.cfg.get("quota_day", 1)))
         tk.Spinbox(f, from_=1, to=28, textvariable=self.day, width=3, bg=PANEL, fg=FG,
-                   buttonbackground="#27405f", relief="flat").pack(side="left")
+                   buttonbackground=BTN, relief="flat").pack(side="left")
         tk.Label(f, text=" · cuenta ", bg=BG, fg=FG).pack(side="left")
         self.mode = ttk.Combobox(f, state="readonly", width=22,
                                  values=("bajada + subida", "solo bajada"))
         self.mode.current(1 if self.cfg.get("quota_count") == "down" else 0)
         self.mode.pack(side="left")
-        tk.Button(f, text="Guardar", command=self.save, bg=ACC, fg="white", relief="flat",
+        tk.Button(f, text="Guardar", command=self.save, bg=ACCBTN, fg=ACCFG, relief="flat",
                   padx=10, cursor="hand2").pack(side="left", padx=8)
         tk.Label(self, text="Deja el plan vacío o en 0 para no usar cuota (solo verás el consumo).",
                  bg=BG, fg=MUTED, font=("Segoe UI", 8), anchor="w").pack(fill="x", padx=14)

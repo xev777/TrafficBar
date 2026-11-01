@@ -10,7 +10,15 @@ from i18n import tr
 from safety import monitor_work_area
 
 VERSION = "1.2.0"
-BG, PANEL, FG, MUTED, ACC = "#1b2a41", "#0f1a2b", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (la ventana los toma al abrirse)."""
+    globals().update(temas.ventana(nombre, "B"))
+
+
+aplicar_paleta(None)
 CREDITOS = {"autor": "Fernando", "repo": "", "licencia": "", "donaciones": []}
 try:        # creditos.json (junto a la app): autor, enlace del código fuente y donaciones opcionales
     _ruta = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))), "creditos.json")
@@ -33,6 +41,7 @@ class Splash(tk.Toplevel):
     W, H = 460, 260
 
     def __init__(self, master, on_done=None):
+        aplicar_paleta(None)          # la pantalla de bienvenida siempre usa los colores de la marca
         super().__init__(master, bg=BG)
         self.on_done = on_done
         self.overrideredirect(True)
@@ -223,6 +232,7 @@ _sec("Consejos",
 
 class HelpWindow(tk.Toplevel):
     def __init__(self, app, start="Introducción", cfg=None, save_cfg=None, data_dir=""):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.app, self.cfg, self.save_cfg, self.data_dir = app, cfg, save_cfg, data_dir
         self.title("TrafficBar – Ayuda")
@@ -253,7 +263,7 @@ class HelpWindow(tk.Toplevel):
         t.tag_config("p", lmargin1=0, lmargin2=0)
         t.tag_config("b", lmargin1=14, lmargin2=28)
         t.tag_config("n", lmargin1=6, lmargin2=30, spacing3=6)
-        t.tag_config("note", foreground="#ffd166", spacing1=10)
+        t.tag_config("note", foreground=WARN, spacing1=10)
         t.tag_config("muted", foreground=MUTED)
         t.tag_config("big", font=("Segoe UI", 22, "bold"), foreground=FG)
         foot = tk.Frame(self, bg=BG)
@@ -263,7 +273,7 @@ class HelpWindow(tk.Toplevel):
                        variable=self.intro_var, command=self._toggle_intro, bg=BG, fg=FG,
                        selectcolor=PANEL, activebackground=BG, activeforeground=FG,
                        font=("Segoe UI", 9)).pack(side="left")
-        tk.Button(foot, text="Cerrar", command=self.destroy, bg=ACC, fg="white", relief="flat",
+        tk.Button(foot, text="Cerrar", command=self.destroy, bg=ACCBTN, fg=ACCFG, relief="flat",
                   padx=14, cursor="hand2").pack(side="right")
         self.show(start if start in self.tabs else "Introducción")
         self.bind("<Escape>", lambda e: self.destroy())
@@ -276,8 +286,8 @@ class HelpWindow(tk.Toplevel):
 
     def show(self, name):
         for n, b in self.tabs.items():
-            b.config(bg=ACC if n == name else "#27405f", fg="white", activebackground=ACC,
-                     activeforeground="white")
+            b.config(bg=ACCBTN if n == name else BTN, fg=ACCFG if n == name else FG, activebackground=ACCBTN,
+                     activeforeground=ACCFG)
         t = self.txt
         t.config(state="normal")
         t.delete("1.0", "end")
@@ -332,7 +342,7 @@ class HelpWindow(tk.Toplevel):
 
     def _boton(self, t, texto, cmd):
         row = tk.Frame(t, bg=PANEL)
-        tk.Button(row, text=texto, relief="flat", bg="#27405f", fg="white", cursor="hand2",
+        tk.Button(row, text=texto, relief="flat", bg=BTN, fg=FG, cursor="hand2",
                   command=cmd, padx=8).pack(side="left", pady=4)
         t.insert("end", "\n")
         t.window_create("end", window=row)

@@ -1,5 +1,14 @@
 # Changelog / Registro de cambios
 
+## Unreleased
+
+**New / Novedades**
+- **Themes in every window**: History, Privacy report, Traffic monitor, Telemetry, Monthly quota, Blocked programs, Microsoft Store
+  apps and Help now follow the bar theme (applied when the window opens). Data colors adapt to stay readable on light backgrounds;
+  the Dark theme looks exactly as before. / **Temas en todas las ventanas**: Historial, Informe de privacidad, Monitor de tráfico,
+  Telemetría, Cuota mensual, Programas bloqueados, Apps de la Tienda y Ayuda siguen el tema de la barra (se aplica al abrir la
+  ventana). Los colores de los datos se adaptan para leerse sobre fondos claros; el tema Oscuro queda igual que antes.
+
 ## 1.2.0 — 2026-11-01
 
 **New / Novedades**

@@ -6,7 +6,14 @@ from tkinter import ttk
 from privacy import CATS, GRADE_COLOR, base_domain
 from tooltip import tip
 
-BG, PANEL, FG, MUTED, ACC = "#14202f", "#1b2a41", "#e8eef7", "#8ea3bd", "#3fa9f5"
+import temas
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (las ventanas los toman al abrirse)."""
+    globals().update(temas.ventana(nombre, "A"))
+
+
+aplicar_paleta(None)
 
 
 def human(n):
@@ -22,6 +29,7 @@ STATUS_TEXT = {"done": "✓ cargó", "blocked": "🚫 bloqueado", "cut": "✂ co
 
 class ReportWindow(tk.Toplevel):
     def __init__(self, app, report, on_block, is_listed, on_allow=None):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.report, self.on_block, self.is_listed = report, on_block, is_listed
         self.on_allow = on_allow
@@ -41,18 +49,18 @@ class ReportWindow(tk.Toplevel):
     def _style(self):
         s = ttk.Style(self)
         s.theme_use("clam")
-        s.configure("R.Treeview", background="#0f1a2b", fieldbackground="#0f1a2b", foreground=FG,
+        s.configure("R.Treeview", background=FIELD, fieldbackground=FIELD, foreground=FG,
                     rowheight=int(26 * getattr(self.master, 'ui_scale', 1.0)), borderwidth=0, font=("Segoe UI", 9))
         s.configure("R.Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat",
                     font=("Segoe UI", 9, "bold"))
-        s.map("R.Treeview", background=[("selected", "#27405f")])
+        s.map("R.Treeview", background=[("selected", BTN)])
 
     def _header(self):
         r = self.report
         c = tk.Canvas(self, height=118, bg=PANEL, highlightthickness=0)
         c.pack(fill="x", padx=10, pady=(10, 4))
-        col = GRADE_COLOR[r["grade"]]
-        c.create_oval(18, 14, 102, 98, fill="#0f1a2b", outline=col, width=6)
+        col = temas.ajustar(GRADE_COLOR[r["grade"]], PANEL)
+        c.create_oval(18, 14, 102, 98, fill=FIELD, outline=col, width=6)
         c.create_text(60, 56, text=r["grade"], fill=col, font=("Segoe UI", 38, "bold"))
         c.create_text(122, 24, anchor="w", fill=FG, font=("Segoe UI", 16, "bold"), text=r["main"])
         c.create_text(122, 50, anchor="w", fill=col, font=("Segoe UI", 11, "bold"),
@@ -69,11 +77,11 @@ class ReportWindow(tk.Toplevel):
         row.pack(fill="x", padx=10, pady=4)
         for label, value, color in (
                 ("Sitios contactados", r["n_hosts"], FG),
-                ("De terceros", r["n_third"], "#ffd166"),
-                ("Publicidad", cnt["ads"], CATS["ads"][1]),
-                ("Analítica", cnt["analytics"], CATS["analytics"][1]),
-                ("Redes sociales", cnt["social"], CATS["social"][1]),
-                ("Bloqueados", r["protected"], "#7fd6a6"),
+                ("De terceros", r["n_third"], WARN),
+                ("Publicidad", cnt["ads"], temas.ajustar(CATS["ads"][1], PANEL)),
+                ("Analítica", cnt["analytics"], temas.ajustar(CATS["analytics"][1], PANEL)),
+                ("Redes sociales", cnt["social"], temas.ajustar(CATS["social"][1], PANEL)),
+                ("Bloqueados", r["protected"], OKC),
                 ("Peso", human(r["bytes"]), FG),
                 ("Tiempo", f"{r['seconds']:.1f} s", FG)):
             f = tk.Frame(row, bg=PANEL, padx=8, pady=4)
@@ -93,8 +101,8 @@ class ReportWindow(tk.Toplevel):
             self.tree.heading(c, text=txt)
             self.tree.column(c, width=w, anchor=a)
         for key, (_, color, _) in CATS.items():
-            self.tree.tag_configure(key, foreground=color)
-        self.tree.tag_configure("blocked", foreground="#5f7390")
+            self.tree.tag_configure(key, foreground=temas.ajustar(color, FIELD))
+        self.tree.tag_configure("blocked", foreground=DIM)
         sb = ttk.Scrollbar(box, command=self.tree.yview)
         self.tree.configure(yscrollcommand=sb.set)
         sb.pack(side="right", fill="y")
@@ -149,10 +157,10 @@ class ReportWindow(tk.Toplevel):
             tip(self._btn(row, "✅ Permitir seleccionados", self.allow_selected, "#2e6b4a"),
                 "Añade el sitio a tus excepciones: TrafficBar dejará de bloquearlo (útil si la página "
                 "se rompe sin él).")
-        self._btn(row, "Cerrar", self.destroy, "#27405f", side="right")
+        self._btn(row, "Cerrar", self.destroy, BTN, side="right")
 
     def _btn(self, parent, text, cmd, bg, side="left"):
-        b = tk.Button(parent, text=text, command=cmd, bg=bg, fg="white", relief="flat", bd=0,
+        b = tk.Button(parent, text=text, command=cmd, bg=bg, fg=FG if bg == BTN else "white", relief="flat", bd=0,
                       padx=12, pady=5, font=("Segoe UI", 9), cursor="hand2",
                       activebackground="#ff6b6b")
         b.pack(side=side, padx=3)

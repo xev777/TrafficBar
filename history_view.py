@@ -7,8 +7,14 @@ from i18n import tr
 from privacy import GRADE_COLOR
 from tooltip import tip
 
-BG, PANEL, FG, MUTED, ACC = "#14202f", "#1b2a41", "#e8eef7", "#8ea3bd", "#3fa9f5"
-DOWN_C, UP_C = "#3fa9f5", "#ffa94d"
+import temas
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (las ventanas los toman al abrirse)."""
+    globals().update(temas.ventana(nombre, "A"))
+
+
+aplicar_paleta(None)
 RANGES = {"1 hora": (3600, 60), "6 horas": (6 * 3600, 300), "24 horas": (86400, 900),
           "7 días": (7 * 86400, 7200)}
 ALERT_ICON = {"new": "🆕", "path": "⚠", "upload": "📤", "proc_upload": "📤", "telemetry": "📊"}
@@ -29,6 +35,7 @@ def fmt(ts, f="%d/%m %H:%M"):
 
 class HistoryWindow(tk.Toplevel):
     def __init__(self, app, hist, cfg, save_cfg, open_report, set_monitor, monitor_state):
+        aplicar_paleta(getattr(app, "theme_name", None))
         super().__init__(app, bg=BG)
         self.app, self.hist, self.cfg, self.save_cfg = app, hist, cfg, save_cfg
         self.open_report, self.set_monitor, self.monitor_state = open_report, set_monitor, monitor_state
@@ -69,21 +76,21 @@ class HistoryWindow(tk.Toplevel):
     def _style(self):
         s = ttk.Style(self)
         s.theme_use("clam")
-        s.configure("H.Treeview", background="#0f1a2b", fieldbackground="#0f1a2b", foreground=FG,
+        s.configure("H.Treeview", background=FIELD, fieldbackground=FIELD, foreground=FG,
                     rowheight=int(26 * getattr(self.master, 'ui_scale', 1.0)), borderwidth=0, font=("Segoe UI", 9))
         s.configure("H.Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat",
                     font=("Segoe UI", 9, "bold"))
-        s.map("H.Treeview", background=[("selected", "#27405f")])
+        s.map("H.Treeview", background=[("selected", BTN)])
         s.configure("TNotebook", background=BG, borderwidth=0)
         s.configure("TNotebook.Tab", background=PANEL, foreground=MUTED, padding=(14, 6),
                     font=("Segoe UI", 10))
-        s.map("TNotebook.Tab", background=[("selected", "#27405f")],
-              foreground=[("selected", "white")])
-        s.configure("Vertical.TScrollbar", background="#27405f", troughcolor="#0f1a2b",
-                    bordercolor="#0f1a2b", arrowcolor=FG, lightcolor="#27405f",
-                    darkcolor="#27405f")
-        s.configure("TCombobox", fieldbackground="#0f1a2b", background=PANEL, foreground=FG)
-        s.map("TCombobox", fieldbackground=[("readonly", "#0f1a2b")],
+        s.map("TNotebook.Tab", background=[("selected", BTN)],
+              foreground=[("selected", FG)])
+        s.configure("Vertical.TScrollbar", background=BTN, troughcolor=FIELD,
+                    bordercolor=FIELD, arrowcolor=FG, lightcolor=BTN,
+                    darkcolor=BTN)
+        s.configure("TCombobox", fieldbackground=FIELD, background=PANEL, foreground=FG)
+        s.map("TCombobox", fieldbackground=[("readonly", FIELD)],
               foreground=[("readonly", FG)])
 
     # ---- utilidades de interfaz
@@ -100,8 +107,9 @@ class HistoryWindow(tk.Toplevel):
         tree.pack(fill="both", expand=True)
         return box, tree
 
-    def _button(self, parent, text, cmd, bg="#27405f", side="left"):
-        b = tk.Button(parent, text=text, command=cmd, bg=bg, fg="white", relief="flat", bd=0,
+    def _button(self, parent, text, cmd, bg=None, side="left"):
+        bg = bg or BTN
+        b = tk.Button(parent, text=text, command=cmd, bg=bg, fg=FG if bg == BTN else "white", relief="flat", bd=0,
                       padx=12, pady=4, font=("Segoe UI", 9), cursor="hand2",
                       activebackground=ACC)
         b.pack(side=side, padx=3)
@@ -177,10 +185,10 @@ class HistoryWindow(tk.Toplevel):
         for name in RANGES:
             tk.Radiobutton(top, text=name, value=name, variable=self.range_name,
                            command=self.refresh, indicatoron=False, bg=PANEL, fg=FG,
-                           selectcolor="#27405f", activebackground="#27405f", relief="flat",
+                           selectcolor=BTN, activebackground=BTN, relief="flat",
                            padx=10, pady=3, bd=0).pack(side="left", padx=2)
         self._button(top, "Exportar CSV", self._export_csv, side="right")
-        self.tl_canvas = tk.Canvas(f, height=280, bg="#0f1a2b", highlightthickness=0)
+        self.tl_canvas = tk.Canvas(f, height=280, bg=FIELD, highlightthickness=0)
         self.tl_canvas.pack(fill="x", padx=8)
         self.tl_canvas.bind("<Motion>", self._tl_hover)
         self.tl_canvas.bind("<Button-1>", self._tl_click)
@@ -215,7 +223,7 @@ class HistoryWindow(tk.Toplevel):
         peak = max([max(b["down"], b["up"]) for _, b in self.bins] or [0]) or 1
         for i in range(0, 5):
             y = h - pad_b - (h - pad_b - 14) * i / 4
-            c.create_line(pad_l, y, w - 8, y, fill="#1d2c42")
+            c.create_line(pad_l, y, w - 8, y, fill=GRID)
             c.create_text(pad_l - 6, y, anchor="e", fill=MUTED, font=("Segoe UI", 8),
                           text=human(peak * i / 4))
         step = (w - pad_l - 8) / max(n, 1)
@@ -288,9 +296,9 @@ class HistoryWindow(tk.Toplevel):
         cb.pack(side="left", padx=6)
         tk.Label(bar, text="Programa:", bg=BG, fg=FG).pack(side="left", padx=(10, 0))
         self.proc_filter = tk.StringVar()
-        e = tk.Entry(bar, textvariable=self.proc_filter, width=18, bg="#0f1a2b", fg=FG,
+        e = tk.Entry(bar, textvariable=self.proc_filter, width=18, bg=FIELD, fg=FG,
                      insertbackground=FG, relief="flat", highlightthickness=1,
-                     highlightbackground="#27405f", highlightcolor=ACC)
+                     highlightbackground=BTN, highlightcolor=ACC)
         e.pack(side="left", padx=6, ipady=3)
         e.bind("<Return>", lambda ev: self._fill_conns())
         cb.bind("<<ComboboxSelected>>", lambda ev: self._fill_conns())
@@ -339,7 +347,7 @@ class HistoryWindow(tk.Toplevel):
     def _build_alerts(self, f):
         box, self.alert_tree = self._tree(f, (("t", "Hora"), ("k", ""), ("p", "Programa"),
                                               ("m", "Qué pasó")), (120, 34, 160, 640))
-        self.alert_tree.tag_configure("unseen", foreground="#ffd166")
+        self.alert_tree.tag_configure("unseen", foreground=WARN)
         self.alert_tree.bind("<Double-1>", self._alert_detail)
         box.pack(fill="both", expand=True, padx=8, pady=(8, 4))
         row = tk.Frame(f, bg=BG)
@@ -357,13 +365,13 @@ class HistoryWindow(tk.Toplevel):
         r1.pack(fill="x")
         tk.Label(r1, text="Subida sostenida del equipo (20 s) mayor que", bg=BG, fg=FG).pack(side="left")
         tk.Spinbox(r1, from_=0.5, to=200, increment=0.5, width=6, textvariable=self.up_var,
-                   bg="#0f1a2b", fg=FG, buttonbackground=PANEL, relief="flat").pack(side="left", padx=6)
+                   bg=FIELD, fg=FG, buttonbackground=PANEL, relief="flat").pack(side="left", padx=6)
         tk.Label(r1, text="MB/s", bg=BG, fg=MUTED).pack(side="left")
         r2 = tk.Frame(cfgf, bg=BG)
         r2.pack(fill="x", pady=4)
         tk.Label(r2, text="Un programa que envía más de", bg=BG, fg=FG).pack(side="left")
         tk.Spinbox(r2, from_=10, to=5000, increment=10, width=6, textvariable=self.proc_var,
-                   bg="#0f1a2b", fg=FG, buttonbackground=PANEL, relief="flat").pack(side="left", padx=6)
+                   bg=FIELD, fg=FG, buttonbackground=PANEL, relief="flat").pack(side="left", padx=6)
         tk.Label(r2, text="MB en un minuto", bg=BG, fg=MUTED).pack(side="left")
         self.mon_var = tk.BooleanVar(value=self.monitor_state()[0])
         tk.Checkbutton(cfgf, text="Monitoreo continuo por programa (Npcap; requiere TrafficBar como "
@@ -424,7 +432,7 @@ class HistoryWindow(tk.Toplevel):
                                              ("l", "Última vez"), ("c", "Conexiones"),
                                              ("s", "Estado")), (150, 380, 110, 110, 90, 120),
                                          {"c": "e"})
-        self.prog_tree.tag_configure("new", foreground="#ffa94d")
+        self.prog_tree.tag_configure("new", foreground=UP_C)
         box.pack(fill="both", expand=True, padx=8, pady=(0, 8))
 
     def _fill_programs(self):
@@ -449,7 +457,7 @@ class HistoryWindow(tk.Toplevel):
                                              ("w", "Peso")), (120, 380, 70, 150, 100, 100),
                                          {"g": "center", "a": "e", "b": "e", "w": "e"})
         for g, col in GRADE_COLOR.items():
-            self.page_tree.tag_configure(g, foreground=col)
+            self.page_tree.tag_configure(g, foreground=temas.ajustar(col, FIELD))
         self.page_tree.bind("<Double-1>", self._open_page)
         box.pack(fill="both", expand=True, padx=8, pady=(0, 8))
 

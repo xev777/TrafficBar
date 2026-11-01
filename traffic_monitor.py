@@ -69,6 +69,7 @@ CATEGORY_COLOR = {
     "mail": "#ffd166", "remote": "#ff9f43", "system": "#7fd6a6", "other": "#e8eef7",
     "inbound": "#ff9f43", "telemetry": "#c9a227",
 }
+_CATEGORY_BASE = dict(CATEGORY_COLOR)
 CATEGORY_NAME = {
     "web": "Navegación / internet", "dns": "Nombres (DNS)", "local": "Red local",
     "ads": "Publicidad / rastreo", "mail": "Correo", "remote": "Acceso remoto / VPN",
@@ -797,12 +798,19 @@ class Engine:
 
 
 # ---------------------------------------------------------------------------- GUI
-BG, PANEL, FG, MUTED = "#14202f", "#1b2a41", "#e8eef7", "#8ea3bd"
-DOWN_C, UP_C = "#3fa9f5", "#ffa94d"
+import temas
+
+def aplicar_paleta(nombre):
+    """Colores del tema elegido en la barra (las ventanas los toman al abrirse)."""
+    globals().update(temas.ventana(nombre, "A"))
+    CATEGORY_COLOR.update({k: temas.ajustar(v, FIELD) for k, v in _CATEGORY_BASE.items()})
+
+aplicar_paleta(None)
 
 
 class TrafficWindow(tk.Toplevel):
     def __init__(self, master, is_ad, engine=None):
+        aplicar_paleta(getattr(master, "theme_name", None))
         super().__init__(master, bg=BG)
         self.title("TrafficBar – Tráfico de red")
         self.geometry("1120x720")
@@ -830,27 +838,27 @@ class TrafficWindow(tk.Toplevel):
     def _style(self):
         s = ttk.Style(self)
         s.theme_use("clam")
-        s.configure("Treeview", background="#0f1a2b", fieldbackground="#0f1a2b",
+        s.configure("Treeview", background=FIELD, fieldbackground=FIELD,
                     foreground=FG, rowheight=int(26 * getattr(self.master, 'ui_scale', 1.0)), borderwidth=0, font=("Segoe UI", 9))
         s.configure("Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat",
                     font=("Segoe UI", 9, "bold"))
-        s.map("Treeview", background=[("selected", "#27405f")])
+        s.map("Treeview", background=[("selected", BTN)])
         s.configure("TNotebook", background=BG, borderwidth=0)
         s.configure("TNotebook.Tab", background=PANEL, foreground=MUTED, padding=(14, 6),
                     font=("Segoe UI", 10))
-        s.map("TNotebook.Tab", background=[("selected", "#27405f")],
-              foreground=[("selected", "white")])
-        s.configure("TCombobox", fieldbackground="#0f1a2b", background=PANEL, foreground=FG,
+        s.map("TNotebook.Tab", background=[("selected", BTN)],
+              foreground=[("selected", FG)])
+        s.configure("TCombobox", fieldbackground=FIELD, background=PANEL, foreground=FG,
                     arrowcolor=FG, bordercolor=PANEL, lightcolor=PANEL, darkcolor=PANEL)
-        s.map("TCombobox", fieldbackground=[("readonly", "#0f1a2b")],
-              foreground=[("readonly", FG)], selectbackground=[("readonly", "#0f1a2b")],
+        s.map("TCombobox", fieldbackground=[("readonly", FIELD)],
+              foreground=[("readonly", FG)], selectbackground=[("readonly", FIELD)],
               selectforeground=[("readonly", FG)])
-        self.option_add("*TCombobox*Listbox.background", "#0f1a2b")
+        self.option_add("*TCombobox*Listbox.background", FIELD)
         self.option_add("*TCombobox*Listbox.foreground", FG)
-        self.option_add("*TCombobox*Listbox.selectBackground", "#27405f")
-        s.configure("Vertical.TScrollbar", background="#27405f", troughcolor="#0f1a2b",
-                    bordercolor="#0f1a2b", arrowcolor=FG, lightcolor="#27405f",
-                    darkcolor="#27405f")
+        self.option_add("*TCombobox*Listbox.selectBackground", BTN)
+        s.configure("Vertical.TScrollbar", background=BTN, troughcolor=FIELD,
+                    bordercolor=FIELD, arrowcolor=FG, lightcolor=BTN,
+                    darkcolor=BTN)
 
     def _card(self, parent, title, color):
         f = tk.Frame(parent, bg=PANEL, padx=14, pady=8)
@@ -864,8 +872,8 @@ class TrafficWindow(tk.Toplevel):
 
     def _button(self, parent, text, cmd, accent=False):
         b = tk.Button(parent, text=text, command=cmd, relief="flat", bd=0, padx=12, pady=4,
-                      bg="#3fa9f5" if accent else "#27405f", fg="white", cursor="hand2",
-                      activebackground="#5cb8ff", font=("Segoe UI", 9))
+                      bg=ACCBTN if accent else BTN, fg=ACCFG if accent else FG, cursor="hand2",
+                      activebackground=ACC, font=("Segoe UI", 9))
         b.pack(side="left", padx=3)
         return b
 
@@ -874,7 +882,7 @@ class TrafficWindow(tk.Toplevel):
         cards.pack(fill="x", padx=10, pady=(10, 4))
         self.c_down = self._card(cards, "↓ BAJADA (lo que recibes)", DOWN_C)
         self.c_up = self._card(cards, "↑ SUBIDA (lo que envías)", UP_C)
-        self.c_conn = self._card(cards, "CONVERSACIONES ACTIVAS", "#7fd6a6")
+        self.c_conn = self._card(cards, "CONVERSACIONES ACTIVAS", OKC)
         self.c_tot = self._card(cards, "TOTAL DESDE QUE ABRISTE", FG)
         tip(self.c_down[0].master, "Velocidad a la que llegan datos a tu equipo ahora mismo, sumando "
                                    "todos los programas.")
@@ -887,11 +895,11 @@ class TrafficWindow(tk.Toplevel):
         self.summary = tk.Label(self, text="Esperando tráfico…", bg=BG, fg=FG, anchor="w",
                                 font=("Segoe UI", 11), wraplength=1080, justify="left")
         self.summary.pack(fill="x", padx=14, pady=(2, 2))
-        self.alert = tk.Label(self, text="", bg=BG, fg="#ff9f43", anchor="w",
+        self.alert = tk.Label(self, text="", bg=BG, fg=HOT, anchor="w",
                               font=("Segoe UI", 9))
         self.alert.pack(fill="x", padx=14)
 
-        self.graph = tk.Canvas(self, height=120, bg="#0f1a2b", highlightthickness=0)
+        self.graph = tk.Canvas(self, height=120, bg=FIELD, highlightthickness=0)
         self.graph.pack(fill="x", padx=14, pady=4)
         tip(self.graph, "Tráfico del último minuto. Azul = bajada, naranja = subida. La escala se "
                         "ajusta al pico.")
@@ -909,7 +917,7 @@ class TrafficWindow(tk.Toplevel):
             "sobre su fila.")
         tk.Label(ctl, text="  Buscar:", bg=BG, fg=MUTED).pack(side="left")
         self.q = tk.StringVar()
-        search = tk.Entry(ctl, textvariable=self.q, width=22, bg="#0f1a2b", fg=FG,
+        search = tk.Entry(ctl, textvariable=self.q, width=22, bg=FIELD, fg=FG,
                           insertbackground=FG, relief="flat")
         search.pack(side="left", padx=4, ipady=3)
         tip(search, "Filtra por programa, sitio, empresa, servicio o IP.")
@@ -956,7 +964,7 @@ class TrafficWindow(tk.Toplevel):
             self.tree.column(c, width=w, anchor=anc)
         for cat, color in CATEGORY_COLOR.items():
             self.tree.tag_configure(cat, foreground=color)
-        self.tree.tag_configure("idle", foreground="#5f7390")
+        self.tree.tag_configure("idle", foreground=DIM)
         sb = ttk.Scrollbar(t1, command=self.tree.yview)
         self.tree.configure(yscrollcommand=sb.set)
         sb.pack(side="right", fill="y")
@@ -968,16 +976,16 @@ class TrafficWindow(tk.Toplevel):
 
         t2 = tk.Frame(nb, bg=BG)
         nb.add(t2, text="  Por programa  ")
-        self.prog = tk.Canvas(t2, bg="#0f1a2b", highlightthickness=0)
+        self.prog = tk.Canvas(t2, bg=FIELD, highlightthickness=0)
         self.prog.pack(fill="both", expand=True)
 
         t3 = tk.Frame(nb, bg=BG)
         nb.add(t3, text="  Qué está pasando  ")
-        self.feed = tk.Text(t3, bg="#0f1a2b", fg=FG, relief="flat", font=("Segoe UI", 10),
+        self.feed = tk.Text(t3, bg=FIELD, fg=FG, relief="flat", font=("Segoe UI", 10),
                             wrap="word", state="disabled", padx=10, pady=8, spacing1=3)
         for cat, color in CATEGORY_COLOR.items():
             self.feed.tag_configure(cat, foreground=color)
-        self.feed.tag_configure("time", foreground="#5f7390")
+        self.feed.tag_configure("time", foreground=DIM)
         self.feed.pack(fill="both", expand=True)
 
         t4 = tk.Frame(nb, bg=BG)
@@ -1126,7 +1134,7 @@ class TrafficWindow(tk.Toplevel):
         peak = max(peak, 1024)
         for i in range(1, 4):
             y = h - 16 - (h - 26) * i / 3
-            c.create_line(0, y, w, y, fill="#1d2c42")
+            c.create_line(0, y, w, y, fill=GRID)
         c.create_text(6, 6, anchor="nw", fill=MUTED, font=("Segoe UI", 8),
                       text=f"máx {human_rate(peak)}")
         c.create_text(w - 6, h - 4, anchor="se", fill=MUTED, font=("Segoe UI", 8),
@@ -1224,7 +1232,7 @@ class TrafficWindow(tk.Toplevel):
             c.create_text(w - 14, y, anchor="ne", fill=MUTED, font=("Segoe UI", 9),
                           text=f"↓ {human(d)}   ↑ {human(u)}   · ahora {human_rate(rate)} · {n} conv.")
             bw = w - 28
-            c.create_rectangle(14, y + 20, 14 + bw, y + 30, fill="#1d2c42", width=0)
+            c.create_rectangle(14, y + 20, 14 + bw, y + 30, fill=GRID, width=0)
             dw = bw * d / top
             uw = bw * u / top
             c.create_rectangle(14, y + 20, 14 + dw, y + 30, fill=DOWN_C, width=0)
@@ -1260,7 +1268,7 @@ class TrafficWindow(tk.Toplevel):
         if not r:
             return
         self.tree.selection_set(iid)
-        m = tk.Menu(self, tearoff=0, bg=BG, fg=FG, activebackground="#3fa9f5", activeforeground="white",
+        m = tk.Menu(self, tearoff=0, bg=BG, fg=FG, activebackground=ACC, activeforeground=ACCFG,
                     font=("Segoe UI", 10))
         m.add_command(label=f"🚫 Bloquear el acceso a Internet de «{r['proc']}»…",
                       command=lambda: self.block_program(r))
@@ -1334,10 +1342,10 @@ class TrafficWindow(tk.Toplevel):
             lines += [("", ""), ("Una conexión ENTRANTE es alguien de fuera hablando con tu "
                                  "equipo. Es normal en juegos, torrents o compartir archivos; "
                                  "si no esperabas nada de eso, investígalo.", "m")]
-        box = tk.Text(t, bg="#0f1a2b", fg=FG, relief="flat", font=("Consolas", 10), wrap="word",
+        box = tk.Text(t, bg=FIELD, fg=FG, relief="flat", font=("Consolas", 10), wrap="word",
                       padx=12, pady=10)
-        box.tag_configure("h", font=("Segoe UI", 13, "bold"), foreground="#6cc0ff")
-        box.tag_configure("m", foreground="#ffd166")
+        box.tag_configure("h", font=("Segoe UI", 13, "bold"), foreground=temas.ajustar("#6cc0ff", FIELD))
+        box.tag_configure("m", foreground=WARN)
         for text, tag in lines:
             box.insert("end", text + "\n", tag)
         box.config(state="disabled")
